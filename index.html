@@ -196,7 +196,7 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
                         <h4 class="text-dark text-center mb-3" style="color: var(--ine-primary) !important;"><i class="fa-solid fa-user-lock me-2"></i> Iniciar Sesión</h4>
-                        <p class="text-muted small text-center mb-3">Seleccione su nombre y escriba su contraseña (Por defecto: su número de módulo o 'oficina' para personal de oficina).</p>
+                        <p class="text-muted small text-center mb-3">Seleccione su nombre y escriba su contraseña asignada.</p>
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">Personal</label>
@@ -764,34 +764,9 @@
         let esAdminGlobal = false;
         let limiteDiasGlobal = 10;
 
-        let catalogoEmpleados = [
-            { nombre: "PEDRO CECILIO ORNELAS IÑIGUEZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "pedro@ine.mx", telefono: "8661234567", password: "050351" },
-            { nombre: "NOE APOLINAR LINARES GONZALEZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "noe@ine.mx", telefono: "8661234568", password: "050351" },
-            { nombre: "IRAZEMA MARTINEZ CRUZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "irazema@ine.mx", telefono: "8661234569", password: "050351" },
-            { nombre: "ELIZABETH MELENDEZ RIOS", mac: "51", modulo: "050351", puesto: "Operador", correo: "elizabeth@ine.mx", telefono: "8661234570", password: "050351" },
-            { nombre: "CLAUDIA VARELA CERNA", mac: "51", modulo: "050351", puesto: "Operador", correo: "claudia@ine.mx", telefono: "8661234571", password: "050351" },
-            { nombre: "VANESSA MANCILLA ARMENDARIZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "vanessa@ine.mx", telefono: "8661234572", password: "050351" },
-            { nombre: "YADIRA YANETH ROBLES RIVERA", mac: "51", modulo: "050351", puesto: "Operador", correo: "yadira@ine.mx", telefono: "8661234573", password: "050351" },
-            { nombre: "JORGE PANAYIOTIS BRIÑAS GARCIA", mac: "51", modulo: "050351", puesto: "Digitalizador", correo: "jorge@ine.mx", telefono: "8661234574", password: "050351" },
-            { nombre: "BERTHINA SANCHEZ CORONADO", mac: "51", modulo: "050351", puesto: "Auxiliar", correo: "berthina@ine.mx", telefono: "8661234575", password: "050351" },
-            { nombre: "ARNOLDO MONTENEGRO GARZA", mac: "53", modulo: "050353", puesto: "Responsable", correo: "arnoldo@ine.mx", telefono: "8661234576", password: "050353" },
-            { nombre: "DENISSE ISABEL YAÑEZ MORENO", mac: "53", modulo: "050353", puesto: "Operador", correo: "denisse@ine.mx", telefono: "8661234577", password: "050353" },
-            { nombre: "NAYELI FABIOLA CUELLAR MEZA", mac: "53", modulo: "050353", puesto: "Operador", correo: "nayeli@ine.mx", telefono: "8661234578", password: "050353" },
-            { nombre: "ADRIAN HERIBERTO ZUÑIGA LOPEZ", mac: "53", modulo: "050353", puesto: "Operador", correo: "adrian@ine.mx", telefono: "8661234579", password: "050353" },
-            { nombre: "SOLAR SALAS RICARDO", mac: "54", modulo: "050354", puesto: "Responsable", correo: "ricardo@ine.mx", telefono: "8661234580", password: "050354" },
-            { nombre: "JESUS ARTURO MUÑOZ RAMOS", mac: "54", modulo: "050354", puesto: "Operador", correo: "jesus@ine.mx", telefono: "8661234581", password: "050354" },
-            { nombre: "DOMINGUEZ CARREON RANDY REGINALDO", mac: "54", modulo: "050354", puesto: "Operador", correo: "randy@ine.mx", telefono: "8661234582", password: "050354" },
-            { nombre: "BRENDA AZUCENA MARTINEZ GOMEZ", mac: "55", modulo: "Oficina", puesto: "Jefe", correo: "brenda@ine.mx", telefono: "8661234583", password: "oficina" },
-            { nombre: "FELIX MIGUEL AGUIRRE MARTINEZ", mac: "55", modulo: "Oficina", puesto: "Cartógrafo", correo: "felix@ine.mx", telefono: "8661234584", password: "oficina" },
-            { nombre: "JULIO CESAR LOZANO ESPARZA", mac: "55", modulo: "Oficina", puesto: "Cartógrafo", correo: "julio@ine.mx", telefono: "8661234585", password: "oficina" },
-            { nombre: "BUENO ARREDONDO NORMA ANGELITA", mac: "55", modulo: "Oficina", puesto: "Técnica", correo: "norma@ine.mx", telefono: "8661234586", password: "oficina" },
-            { nombre: "CARDENAS LEDEZMA MARIO ALBERTO", mac: "55", modulo: "Oficina", puesto: "Soporte", correo: "mario@carrivers.com", telefono: "8661234587", password: "oficina" }
-        ];
-
-        let registros = [
-            { id: 1, mac: "51", nombre: "PEDRO CECILIO ORNELAS IÑIGUEZ", area: "050351", anio: "2026", periodo: "PRIMER PERIODO", delDia: "2026-06-15", alDia: "2026-06-26", estado: "Solicitado", motivo: "" },
-            { id: 2, mac: "51", nombre: "NOE APOLINAR LINARES GONZALEZ", area: "050351", anio: "2026", periodo: "PRIMER PERIODO", delDia: "2026-09-21", alDia: "2026-10-02", estado: "Aceptado", motivo: "" }
-        ];
+        // Listas inicializadas en blanco para empezar totalmente desde cero
+        let catalogoEmpleados = [];
+        let registros = [];
 
         let periodoGeneral = { inicio: "2026-06-01", fin: "2026-12-31" };
         let restriccionesAdmin = [];
@@ -837,15 +812,27 @@
                 const data = snapshot.val();
                 if (data) {
                     if (data.empleados) catalogoEmpleados = data.empleados;
+                    else catalogoEmpleados = [];
+
                     if (data.registros) registros = data.registros;
+                    else registros = [];
+
                     if (data.restricciones) restriccionesAdmin = data.restricciones;
+                    else restriccionesAdmin = [];
+
                     if (data.notificaciones) notificacionesUsuarios = data.notificaciones;
+                    else notificacionesUsuarios = {};
+
                     if (data.config) {
                         limiteDiasGlobal = data.config.limiteDias || 10;
                         document.getElementById('inputLimiteDiasGlobal').value = limiteDiasGlobal;
+                        if (data.config.passwordAdmin) passwordAdmin = data.config.passwordAdmin;
                     }
                 } else {
-                    guardarEnFirebase();
+                    catalogoEmpleados = [];
+                    registros = [];
+                    restriccionesAdmin = [];
+                    notificacionesUsuarios = {};
                 }
                 poblarSelectLogin();
                 if (usuarioActual) {
@@ -862,12 +849,12 @@
                 registros: registros,
                 restricciones: restriccionesAdmin,
                 notificaciones: notificacionesUsuarios,
-                config: { limiteDias: limiteDiasGlobal }
+                config: { limiteDias: limiteDiasGlobal, passwordAdmin: passwordAdmin }
             });
         }
 
         function borrarSistemaCompletoDeCero() {
-            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal personalizado y restricciones de Firebase para empezar completamente desde cero.")) {
+            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones para empezar completamente desde cero.")) {
                 db.ref('sistema_vacaciones').remove().then(() => {
                     alert("Sistema borrado y reiniciado desde cero.");
                     window.location.reload();
@@ -966,6 +953,10 @@
             let filtrados = registros;
             if (!esAdminGlobal && usuarioActual) {
                 filtrados = registros.filter(r => r.area === usuarioActual.modulo || r.nombre === usuarioActual.nombre);
+            }
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted small">No hay solicitudes registradas.</td></tr>`;
+                return;
             }
             filtrados.forEach(r => {
                 let badgeColor = 'bg-secondary';
@@ -1252,9 +1243,10 @@
 
         function guardarNuevoPasswordAdmin() {
             let n = document.getElementById('txtNuevoPasswordAdmin').value;
-            if(!n) return;
+            if(!n) { alert('Contraseña inválida'); return; }
             passwordAdmin = n;
-            alert('Contraseña admin actualizada.');
+            guardarEnFirebase();
+            alert('Contraseña de administrador actualizada y guardada con éxito.');
             bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordAdmin')).hide();
         }
 
@@ -1298,6 +1290,14 @@
             let filtrados = dataToRender;
             if (!esAdminGlobal && usuarioActual) {
                 filtrados = dataToRender.filter(r => r.area === usuarioActual.modulo || r.nombre === usuarioActual.nombre);
+            }
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted small">No hay registros en el sistema.</td></tr>`;
+                renderTablaConsultaPrevia();
+                renderCalendar();
+                if(esAdminGlobal) actualizarPanelEstadisticasAdmin();
+                return;
             }
 
             filtrados.forEach((reg) => {
@@ -1443,6 +1443,10 @@
         function renderTablaPersonal() {
             const tbody = document.getElementById('tablaPersonalBody');
             tbody.innerHTML = '';
+            if (catalogoEmpleados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted small">No hay personal registrado. Agregue personal o importe una base de datos CSV.</td></tr>`;
+                return;
+            }
             catalogoEmpleados.forEach((emp, i) => {
                 tbody.innerHTML += `
                     <tr>
