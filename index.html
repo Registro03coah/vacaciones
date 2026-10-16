@@ -796,6 +796,7 @@
         let esAdminGlobal = false;
         let limiteDiasGlobal = 10;
 
+        // Variables estrictamente vacías para que no carguen datos fantasma
         let catalogoEmpleados = [];
         let registros = [];
         let periodoGeneral = { inicio: "2026-06-01", fin: "2026-12-31" };
@@ -866,6 +867,7 @@
                         if (data.config.passwordAdmin) passwordAdmin = data.config.passwordAdmin;
                     }
                 } else {
+                    // Si la base de datos está completamente vacía, limpia las variables locales
                     catalogoEmpleados = [];
                     registros = [];
                     restriccionesAdmin = [];
@@ -890,26 +892,23 @@
             });
         }
 
-function borrarSistemaCompletoDeCero() {
-    if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones para empezar completamente desde cero.")) {
-        // 1. Desactivar la escucha en tiempo real para evitar que se sincronicen datos antiguos automáticamente
-        db.ref('sistema_vacaciones').off();
-        
-        // 2. Eliminar completamente el nodo de Firebase en la nube
-        db.ref('sistema_vacaciones').remove().then(() => {
-            // 3. Limpiar las variables locales en la memoria del navegador
-            catalogoEmpleados = [];
-            registros = [];
-            restriccionesAdmin = [];
-            notificacionesUsuarios = {};
-            
-            alert("Sistema borrado y reiniciado desde cero.");
-            window.location.reload();
-        }).catch(err => {
-            alert("Error al borrar: " + err.message);
-        });
-    }
-}
+        function borrarSistemaCompletoDeCero() {
+            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones para empezar completamente desde cero.")) {
+                // Desvincular eventos para evitar que la caché local repueble el servidor
+                db.ref('sistema_vacaciones').off();
+                
+                db.ref('sistema_vacaciones').remove().then(() => {
+                    catalogoEmpleados = [];
+                    registros = [];
+                    restriccionesAdmin = [];
+                    notificacionesUsuarios = {};
+                    alert("Sistema borrado y reiniciado desde cero.");
+                    window.location.reload();
+                }).catch(err => {
+                    alert("Error al borrar: " + err.message);
+                });
+            }
+        }
 
         function poblarSelectLogin() {
             const select = document.getElementById('loginNombreSelect');
