@@ -207,7 +207,7 @@
     <!-- BARRA SUPERIOR FIJA -->
     <div class="header-banner text-center position-relative">
         <div class="position-absolute top-0 end-0 p-2 me-2 mt-1 d-flex gap-2 align-items-center">
-            <span class="badge bg-secondary shadow-sm" style="font-size: 0.7rem; font-weight: 600;">Versión 11.0</span>
+            <span class="badge bg-secondary shadow-sm" style="font-size: 0.7rem; font-weight: 600;">Versión 11.1</span>
             <span id="firebaseStatusBadge" class="badge bg-danger shadow-sm" style="font-size: 0.7rem; font-weight: 600;">● Offline</span>
         </div>
         <h1><i class="fa-solid fa-calendar-days me-2"></i> Calendarización de Vacaciones - INE Coahuila</h1>
@@ -796,7 +796,6 @@
         let esAdminGlobal = false;
         let limiteDiasGlobal = 10;
 
-        // Variables estrictamente vacías para que no carguen datos fantasma
         let catalogoEmpleados = [];
         let registros = [];
         let periodoGeneral = { inicio: "2026-06-01", fin: "2026-12-31" };
@@ -864,10 +863,11 @@
                     if (data.config) {
                         limiteDiasGlobal = data.config.limiteDias || 10;
                         document.getElementById('inputLimiteDiasGlobal').value = limiteDiasGlobal;
-                        if (data.config.passwordAdmin) passwordAdmin = data.config.passwordAdmin;
+                        if (data.config.passwordAdmin) {
+                            passwordAdmin = data.config.passwordAdmin;
+                        }
                     }
                 } else {
-                    // Si la base de datos está completamente vacía, limpia las variables locales
                     catalogoEmpleados = [];
                     registros = [];
                     restriccionesAdmin = [];
@@ -893,17 +893,24 @@
         }
 
         function borrarSistemaCompletoDeCero() {
-            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones para empezar completamente desde cero.")) {
-                // Desvincular eventos para evitar que la caché local repueble el servidor
+            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones.")) {
                 db.ref('sistema_vacaciones').off();
-                
                 db.ref('sistema_vacaciones').remove().then(() => {
                     catalogoEmpleados = [];
                     registros = [];
                     restriccionesAdmin = [];
                     notificacionesUsuarios = {};
-                    alert("Sistema borrado y reiniciado desde cero.");
-                    window.location.reload();
+                    
+                    db.ref('sistema_vacaciones').set({
+                        empleados: [],
+                        registros: [],
+                        restricciones: [],
+                        notificaciones: {},
+                        config: { limiteDias: 10, passwordAdmin: passwordAdmin }
+                    }, () => {
+                        alert("Sistema borrado y reiniciado desde cero.");
+                        window.location.reload();
+                    });
                 }).catch(err => {
                     alert("Error al borrar: " + err.message);
                 });
@@ -1291,9 +1298,18 @@
             let n = document.getElementById('txtNuevoPasswordAdmin').value;
             if(!n) { alert('Contraseña inválida'); return; }
             passwordAdmin = n;
-            guardarEnFirebase();
-            alert('Contraseña de administrador actualizada y guardada con éxito.');
-            bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordAdmin')).hide();
+            
+            db.ref('sistema_vacaciones').update({
+                config: { 
+                    limiteDias: limiteDiasGlobal, 
+                    passwordAdmin: passwordAdmin 
+                }
+            }).then(() => {
+                alert('Contraseña de administrador actualizada y guardada con éxito en la nube.');
+                bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordAdmin')).hide();
+            }).catch(err => {
+                alert('Error al guardar la contraseña: ' + err.message);
+            });
         }
 
         function guardarLimiteDiasGlobal() {
