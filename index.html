@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bs-body-font-size: 0.875rem;
+            --bs-body-font-size: 0.85rem;
             --primary-color: #0f172a;
             --accent-color: #2563eb;
         }
@@ -18,22 +18,22 @@
             background-color: #f8fafc;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #334155;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
         }
         .header-banner {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: white;
-            padding: 1.5rem 1rem;
+            padding: 1.25rem 1rem;
             border-radius: 0 0 0.75rem 0.75rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
         .header-banner h1 {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 600;
         }
         .header-banner p {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             opacity: 0.8;
         }
         .card {
@@ -44,15 +44,15 @@
             background-color: #ffffff;
         }
         .card-title {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #1e293b;
         }
         .form-label, .form-control, .form-select, .btn {
-            font-size: 0.85rem !important;
+            font-size: 0.82rem !important;
         }
         .table-responsive {
-            max-height: 500px;
+            max-height: 480px;
             overflow-x: auto;
         }
         table {
@@ -63,8 +63,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-size: 0.8rem !important;
-            padding: 0.5rem !important;
+            font-size: 0.78rem !important;
+            padding: 0.45rem !important;
         }
         table th {
             background-color: #1e293b !important;
@@ -76,7 +76,7 @@
             user-select: none;
             font-weight: 500 !important;
             text-transform: uppercase;
-            font-size: 0.75rem !important;
+            font-size: 0.72rem !important;
             letter-spacing: 0.025em;
         }
         table th:hover {
@@ -96,7 +96,7 @@
         }
 
         #tablaPersonal th, #tablaPersonal td {
-            font-size: 0.8rem !important;
+            font-size: 0.78rem !important;
         }
         #tablaPersonal th {
             background-color: #334155 !important;
@@ -107,24 +107,24 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
+            gap: 3px;
         }
         .calendar-day-header {
             text-align: center;
             font-weight: 600;
             background-color: #f1f5f9;
-            padding: 6px;
+            padding: 5px;
             border-radius: 4px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #64748b;
         }
         .calendar-cell {
-            min-height: 90px;
+            min-height: 85px;
             border: 1px solid #e2e8f0;
             border-radius: 4px;
-            padding: 4px;
+            padding: 3px;
             background-color: #fff;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             overflow: hidden;
         }
         .calendar-cell.other-month {
@@ -137,7 +137,7 @@
             color: #475569;
         }
         .vacation-tag {
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             padding: 1px 3px;
             border-radius: 2px;
             margin-bottom: 2px;
@@ -151,12 +151,12 @@
         .festivos-container {
             border: 1px solid #cbd5e1;
             border-radius: 0.5rem;
-            padding: 1rem;
+            padding: 0.85rem;
             background-color: #fff;
         }
         .badge-festivo {
-            font-size: 0.75rem;
-            padding: 4px 8px;
+            font-size: 0.72rem;
+            padding: 3px 7px;
             margin: 2px;
             border-radius: 4px;
             color: white;
@@ -725,10 +725,28 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Configuración Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6jvnsXZwF2anOJo3VadfNvn7Fl6Z5efY",
+            authDomain: "sistema-mac-reportes.firebaseapp.com",
+            databaseURL: "https://sistema-mac-reportes-default-rtdb.firebaseio.com",
+            projectId: "sistema-mac-reportes",
+            storageBucket: "sistema-mac-reportes.firebasestorage.app",
+            messagingSenderId: "776250701305",
+            appId: "1:776250701305:web:ac542564b7f7a136cef928"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let passwordAdmin = "admin2026";
         let usuarioActual = null;
         let esAdminGlobal = false;
@@ -798,9 +816,43 @@
         }
 
         window.onload = function() {
-            poblarSelectLogin();
+            sincronizarConFirebase();
             configurarNavegacionEnter();
         };
+
+        function sincronizarConFirebase() {
+            db.ref('sistema_vacaciones').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.empleados) catalogoEmpleados = data.empleados;
+                    if (data.registros) registros = data.registros;
+                    if (data.restricciones) restriccionesAdmin = data.restricciones;
+                    if (data.notificaciones) notificacionesUsuarios = data.notificaciones;
+                    if (data.config) {
+                        limiteDiasGlobal = data.config.limiteDias || 10;
+                        document.getElementById('inputLimiteDiasGlobal').value = limiteDiasGlobal;
+                    }
+                } else {
+                    guardarEnFirebase();
+                }
+                poblarSelectLogin();
+                if (usuarioActual) {
+                    actualizarContadorBuzonUsuario();
+                    cargarPeriodosObligatoriosAutomaticos();
+                }
+                renderTable();
+            });
+        }
+
+        function guardarEnFirebase() {
+            db.ref('sistema_vacaciones').set({
+                empleados: catalogoEmpleados,
+                registros: registros,
+                restricciones: restriccionesAdmin,
+                notificaciones: notificacionesUsuarios,
+                config: { limiteDias: limiteDiasGlobal }
+            });
+        }
 
         function poblarSelectLogin() {
             const select = document.getElementById('loginNombreSelect');
@@ -1032,6 +1084,7 @@
 
             ultimoTextoNotificacionWhatsApp = `Hola Administrador, *${nombre}* (${modulo}) envió su solicitud:${periodosMsgWhatsApp}`;
 
+            guardarEnFirebase();
             renderTablaConsultaPrevia();
             renderTable();
 
@@ -1083,11 +1136,23 @@
             } else {
                 notifs.forEach((n, idx) => {
                     n.leido = true;
-                    container.innerHTML += `<div class="alert alert-info py-2 small mb-2"><i class="fa-solid fa-circle-info me-1"></i> ${n.texto}</div>`;
+                    container.innerHTML += `
+                        <div class="alert alert-info py-2 small mb-2 d-flex justify-content-between align-items-center">
+                            <div><i class="fa-solid fa-circle-info me-1"></i> ${n.texto}</div>
+                            <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="borrarNotificacionUsuario(${idx})"><i class="fa-solid fa-trash-can small"></i></button>
+                        </div>`;
                 });
+                guardarEnFirebase();
                 actualizarContadorBuzonUsuario();
             }
             new bootstrap.Modal(document.getElementById('modalBuzonUser')).show();
+        }
+
+        function borrarNotificacionUsuario(idx) {
+            notificacionesUsuarios[usuarioActual.nombre].splice(idx, 1);
+            guardarEnFirebase();
+            abrirBuzonInboxUsuario();
+            actualizarContadorBuzonUsuario();
         }
 
         function abrirHistorialPersonal() {
@@ -1115,6 +1180,9 @@
             let nuevo = document.getElementById('txtNuevoPasswordUser').value;
             if (!nuevo) { alert('Contraseña inválida'); return; }
             usuarioActual.password = nuevo;
+            let emp = catalogoEmpleados.find(e => e.nombre === usuarioActual.nombre);
+            if(emp) emp.password = nuevo;
+            guardarEnFirebase();
             alert('Contraseña actualizada con éxito.');
             bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordUser')).hide();
         }
@@ -1166,6 +1234,7 @@
 
         function guardarLimiteDiasGlobal() {
             limiteDiasGlobal = parseInt(document.getElementById('inputLimiteDiasGlobal').value) || 10;
+            guardarEnFirebase();
             alert(`Límite actualizado a ${limiteDiasGlobal} días.`);
         }
 
@@ -1182,6 +1251,7 @@
             restriccionesAdmin.push({ desc, del: fecha, al: fecha, tipo });
             document.getElementById('admDescFestivo').value = '';
             document.getElementById('admFechaUnica').value = '';
+            guardarEnFirebase();
             actualizarBadgesFestivos();
             renderCalendar();
         }
@@ -1191,7 +1261,7 @@
             container.innerHTML = '';
             restriccionesAdmin.forEach((cfg, idx) => {
                 let cl = cfg.tipo === 'Obligatorio' ? 'obligatorio' : 'inhabile';
-                container.innerHTML += `<span class="badge-festivo ${cl}">${cfg.desc}: ${formatearFechaDDMMYYYY(cfg.del)} <button type="button" class="btn-close btn-close-white btn-sm" onclick="restriccionesAdmin.splice(${idx},1); actualizarBadgesFestivos(); renderCalendar();"></button></span>`;
+                container.innerHTML += `<span class="badge-festivo ${cl}">${cfg.desc}: ${formatearFechaDDMMYYYY(cfg.del)} <button type="button" class="btn-close btn-close-white btn-sm" onclick="restriccionesAdmin.splice(${idx},1); guardarEnFirebase(); actualizarBadgesFestivos(); renderCalendar();"></button></span>`;
             });
         }
 
@@ -1254,10 +1324,16 @@
                 if (!notificacionesUsuarios[reg.nombre]) notificacionesUsuarios[reg.nombre] = [];
                 notificacionesUsuarios[reg.nombre].push({ id: Date.now(), texto: `Solicitud (${formatearFechaDDMMYYYY(reg.delDia)} al ${formatearFechaDDMMYYYY(reg.alDia)}) ACEPTADA.`, leido: false });
             }
+            guardarEnFirebase();
             renderTable();
         }
 
-        function eliminarRegistro(id) { registros = registros.filter(r => r.id !== id); renderTable(); }
+        function eliminarRegistro(id) {
+            registros = registros.filter(r => r.id !== id);
+            guardarEnFirebase();
+            renderTable();
+        }
+
         function filtrarTabla() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             renderTable(registros.filter(r => r.nombre.toLowerCase().includes(q) || r.area.toLowerCase().includes(q)));
@@ -1390,10 +1466,20 @@
             if (!nombre || !mac || !modulo || !puesto || !correo || !telefono || !password) { alert('Complete todos los campos'); return; }
             if (idx === -1) catalogoEmpleados.push({ nombre, mac, modulo, puesto, correo, telefono, password });
             else catalogoEmpleados[idx] = { nombre, mac, modulo, puesto, correo, telefono, password };
+            
+            guardarEnFirebase();
             document.getElementById('cardFormPersonal').classList.add('d-none');
-            renderTablaPersonal(); poblarSelectLogin();
+            renderTablaPersonal(); 
+            poblarSelectLogin();
         }
-        function eliminarPersonal(i) { if (confirm('¿Eliminar?')) { catalogoEmpleados.splice(i,1); renderTablaPersonal(); poblarSelectLogin(); } }
+        function eliminarPersonal(i) { 
+            if (confirm('¿Eliminar?')) { 
+                catalogoEmpleados.splice(i,1); 
+                guardarEnFirebase();
+                renderTablaPersonal(); 
+                poblarSelectLogin(); 
+            } 
+        }
 
         function descargarBaseDatosPersonal() {
             let csv = "\uFEFFMAC,NOMBRE,MODULO,PUESTO,CORREO,TELEFONO,PASSWORD\n";
@@ -1419,6 +1505,7 @@
                 }
                 if (nuevos.length > 0) {
                     catalogoEmpleados = nuevos;
+                    guardarEnFirebase();
                     renderTablaPersonal();
                     poblarSelectLogin();
                     alert('Base de datos de personal importada con éxito.');
