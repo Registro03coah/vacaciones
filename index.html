@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendarización y Requisitos - INE Carrivers Desing</title>
+    <title>Calendarización de Vacaciones - INE Carrivers Desing</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -11,7 +11,7 @@
     <style>
         :root {
             --bs-body-font-size: 0.85rem;
-            --ine-primary: #d91438; /* Color institucional tipo INE / guinda-magenta */
+            --ine-primary: #d91438;
             --ine-dark: #1e293b;
             --ine-light: #fdf2f4;
         }
@@ -175,14 +175,6 @@
         .badge-festivo.inhabile { background-color: #dc3545; }
         .badge-festivo.obligatorio { background-color: var(--ine-primary); }
 
-        .req-card {
-            border-left: 4px solid var(--ine-primary);
-            transition: transform 0.2s;
-        }
-        .req-card:hover {
-            transform: translateY(-2px);
-        }
-
         @media print {
             body * { visibility: hidden; }
             #printableLetter, #printableLetter *, #printableReporteGeneral, #printableReporteGeneral *, #printableHistorialPersonal, #printableHistorialPersonal * { visibility: visible; }
@@ -193,7 +185,7 @@
 <body>
 
     <div class="header-banner text-center">
-        <h1><i class="fa-solid fa-id-card me-2"></i> Calendarización y Gestión - INE Coahuila</h1>
+        <h1><i class="fa-solid fa-calendar-days me-2"></i> Calendarización de Vacaciones - INE Coahuila</h1>
         <p class="mb-0">03 Junta Distrital Ejecutiva - Módulos de Atención Ciudadana | Carrivers Desing</p>
     </div>
 
@@ -238,9 +230,6 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold" id="pills-tabla-tab" data-bs-toggle="pill" data-bs-target="#pills-tabla" type="button"><i class="fa-solid fa-table me-1"></i> Registro y Calendario</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold" id="pills-requisitos-tab" data-bs-toggle="pill" data-bs-target="#pills-requisitos" type="button"><i class="fa-solid fa-folder-open me-1"></i> Guía de Trámite INE</button>
             </li>
             <li class="nav-item" role="presentation" id="tabAdminNavItem" style="display: none;">
                 <button class="nav-link fw-bold text-danger" id="pills-admin-tab" data-bs-toggle="pill" data-bs-target="#pills-admin" type="button"><i class="fa-solid fa-lock me-1"></i> Menú Administrador</button>
@@ -424,52 +413,7 @@
                 </div>
             </div>
 
-            <!-- VISTA 3: GUÍA DE TRÁMITE / REQUISITOS ESTILO INE -->
-            <div class="tab-pane fade" id="pills-requisitos" role="tabpanel">
-                <div class="row justify-content-center">
-                    <div class="col-lg-9">
-                        <div class="card border-0 p-3">
-                            <div class="card-body">
-                                <h4 class="mb-3" style="color: var(--ine-primary);"><i class="fa-solid fa-id-card me-2"></i> Reúne tus 3 Documentos (Guía Oficial INE)</h4>
-                                <p class="text-muted small">Para cualquier trámite en el Módulo de Atención Ciudadana (MAC), debes presentar documentos originales sin enmendaduras ni tachaduras.</p>
-                                
-                                <div class="row g-3 mt-2">
-                                    <div class="col-md-4">
-                                        <div class="card req-card h-100 p-2 bg-light">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-flag me-1 text-danger"></i> 1. Nacionalidad</h6>
-                                                <p class="small text-muted mb-0">Acta de nacimiento original o documento que acredite la nacionalidad mexicana (o carta de naturalización).</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card req-card h-100 p-2 bg-light">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-camera-retro me-1 text-danger"></i> 2. Identificación con Foto</h6>
-                                                <p class="small text-muted mb-0">Documento original vigente con fotografía (Pasaporte, Cédula Profesional, Cartilla Militar, Licencia de Conducir).</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card req-card h-100 p-2 bg-light">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-house-chimney me-1 text-danger"></i> 3. Comprobante de Domicilio</h6>
-                                                <p class="small text-muted mb-0">Recibo original con vigencia no mayor a 3 meses (Luz, agua, predial, teléfono, estado de cuenta o escrituras).</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="alert alert-warning mt-4 py-2 small" role="alert">
-                                    <i class="fa-solid fa-circle-info me-1"></i> <b>Nota importante:</b> Si no cuentas con alguna identificación o comprobante, recuerda que puedes presentarte con dos testigos debidamente registrados en el municipio.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VISTA 4: ADMINISTRADOR -->
+            <!-- VISTA 3: ADMINISTRADOR -->
             <div class="tab-pane fade" id="pills-admin" role="tabpanel">
                 <div class="row justify-content-center">
                     <div class="col-md-5" id="adminLoginBox">
@@ -493,10 +437,10 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                                     <h4 class="mb-0" style="color: var(--ine-primary);"><i class="fa-solid fa-gears me-2"></i> Configuración General</h4>
-                                    <div class="d-flex gap-2">
-                                        <!-- Botón Borrado con Calavera -->
-                                        <button class="btn btn-dark btn-sm fw-bold" onclick="borrarSistemaCompletoDeCero()">
-                                            <i class="fa-solid fa-skull me-1"></i> Borrado
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <!-- BOTÓN BORRADO CON CALAVERA Y FONDO NEGRO -->
+                                        <button class="btn btn-dark btn-sm fw-bold px-3 py-2 shadow-sm d-flex align-items-center gap-1" onclick="borrarSistemaCompletoDeCero()" style="background-color: #000000; border-color: #000000;">
+                                            <i class="fa-solid fa-skull fa-lg text-danger"></i> Borrado
                                         </button>
                                         <button class="btn btn-outline-secondary btn-sm" onclick="abrirModalCambiarPasswordAdmin()"><i class="fa-solid fa-key me-1"></i> Contraseña Admin</button>
                                         <button class="btn btn-dark position-relative btn-sm" onclick="abrirBuzonInboxAdmin()">
@@ -958,7 +902,6 @@
             document.getElementById('mainAppContainer').classList.remove('d-none');
             document.getElementById('tabAdminNavItem').style.display = 'none';
 
-            // Activar explícitamente la pestaña de solicitud para evitar errores de enfoque
             const solicitudTab = document.getElementById('pills-solicitud-tab');
             new bootstrap.Tab(solicitudTab).show();
 
