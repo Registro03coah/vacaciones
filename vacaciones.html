@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendarización de Vacaciones - Carrivers Desing</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bs-body-font-size: 0.875rem;
+            --primary-color: #0f172a;
+            --accent-color: #2563eb;
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #334155;
+            font-size: 0.875rem;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            border-radius: 0 0 0.75rem 0.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .header-banner h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .header-banner p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            background-color: #ffffff;
+        }
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .form-label, .form-control, .form-select, .btn {
+            font-size: 0.85rem !important;
+        }
+        .table-responsive {
+            max-height: 500px;
+            overflow-x: auto;
+        }
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        table th, table td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.8rem !important;
+            padding: 0.5rem !important;
+        }
+        table th {
+            background-color: #1e293b !important;
+            color: white !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.025em;
+        }
+        table th:hover {
+            background-color: #0f172a !important;
+        }
+        .resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            cursor: col-resize;
+            user-select: none;
+            height: 100%;
+        }
+        .resizer:hover, .resizing {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        #tablaPersonal th, #tablaPersonal td {
+            font-size: 0.8rem !important;
+        }
+        #tablaPersonal th {
+            background-color: #334155 !important;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            background-color: #f1f5f9;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .calendar-cell {
+            min-height: 90px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 4px;
+            background-color: #fff;
+            font-size: 0.7rem;
+            overflow: hidden;
+        }
+        .calendar-cell.other-month {
+            background-color: #f8fafc;
+            color: #94a3b8;
+        }
+        .calendar-date-number {
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #475569;
+        }
+        .vacation-tag {
+            font-size: 0.6rem;
+            padding: 1px 3px;
+            border-radius: 2px;
+            margin-bottom: 2px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .festivos-container {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background-color: #fff;
+        }
+        .badge-festivo {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-festivo.inhabile { background-color: #dc3545; }
+        .badge-festivo.obligatorio { background-color: #2563eb; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printableLetter, #printableLetter *, #printableReporteGeneral, #printableReporteGeneral *, #printableHistorialPersonal, #printableHistorialPersonal * { visibility: visible; }
+            #printableLetter, #printableReporteGeneral, #printableHistorialPersonal { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 15px; background: white; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner text-center">
+        <h1><i class="fa-solid fa-calendar-days me-2"></i> Calendarización de Vacaciones</h1>
+        <p class="mb-0">03 Junta Distrital Ejecutiva en Coahuila - Carrivers Desing</p>
+    </div>
+
+    <!-- PANTALLA DE LOGIN DE EMPLEADO -->
+    <div class="container" id="loginEmpleadoContainer">
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h4 class="text-dark text-center mb-3"><i class="fa-solid fa-user-lock me-2 text-primary"></i> Iniciar Sesión</h4>
+                        <p class="text-muted small text-center mb-3">Seleccione su nombre y escriba su contraseña (Por defecto: su número de módulo o 'oficina' para personal de oficina).</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Personal</label>
+                            <select class="form-select enter-next" id="loginNombreSelect">
+                                <option value="">-- Seleccione su nombre --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Contraseña</label>
+                            <input type="password" class="form-control enter-next" id="loginPasswordInput" placeholder="Contraseña">
+                        </div>
+                        <div class="d-grid mb-3">
+                            <button class="btn btn-primary btn-sm" id="btnLoginAcceder" onclick="validarLoginEmpleado()">Ingresar</button>
+                        </div>
+                        <div class="text-center">
+                            <a href="#" class="small text-secondary text-decoration-none" onclick="irAlMenuAdminDirecto()"><i class="fa-solid fa-lock me-1"></i> Panel Administrador</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL (OCULTA HASTA INICIAR SESIÓN) -->
+    <div class="container-fluid px-4 d-none" id="mainAppContainer">
+        
+        <!-- Pestañas de Navegación -->
+        <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="pills-solicitud-tab" data-bs-toggle="pill" data-bs-target="#pills-solicitud" type="button"><i class="fa-solid fa-file-pen me-1"></i> Solicitar y Mis Solicitudes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="pills-tabla-tab" data-bs-toggle="pill" data-bs-target="#pills-tabla" type="button"><i class="fa-solid fa-table me-1"></i> Registro y Calendario</button>
+            </li>
+            <li class="nav-item" role="presentation" id="tabAdminNavItem" style="display: none;">
+                <button class="nav-link fw-bold text-danger" id="pills-admin-tab" data-bs-toggle="pill" data-bs-target="#pills-admin" type="button"><i class="fa-solid fa-lock me-1"></i> Menú Administrador</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            
+            <!-- VISTA 1 -->
+            <div class="tab-pane fade show active" id="pills-solicitud" role="tabpanel">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-lg-10">
+                        <div class="card border-0 bg-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h5 class="card-title mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i> Estado Actual de Solicitudes (<span id="lblModuloUsuarioContexto"></span>)</h5>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <!-- Botón Buzón con Globo de Notificación -->
+                                        <button class="btn btn-outline-dark position-relative btn-sm" onclick="abrirBuzonInboxUsuario()">
+                                            <i class="fa-solid fa-envelope me-1"></i> Buzón
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="badgeBuzonUserCount">0</span>
+                                        </button>
+                                        <!-- Botón Historial Personal -->
+                                        <button class="btn btn-outline-primary btn-sm" onclick="abrirHistorialPersonal()">
+                                            <i class="fa-solid fa-clock-rotate-left me-1"></i> Mi Historial
+                                        </button>
+                                        <!-- Botón Cambiar Contraseña -->
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="abrirModalCambiarPasswordUsuario()">
+                                            <i class="fa-solid fa-key me-1"></i> Contraseña
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket me-1"></i> Salir (<span id="lblUsuarioLogueado"></span>)</button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive" style="max-height: 220px;">
+                                    <table class="table table-sm table-hover table-bordered align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nombre Completo</th>
+                                                <th>Módulo</th>
+                                                <th>Fechas Solicitadas</th>
+                                                <th>Estatus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaConsultaPreviaBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card border-0">
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-primary mb-2"><i class="fa-solid fa-user-clock me-2"></i> Formulario de Solicitud de Vacaciones</h5>
+                                <p class="text-muted small mb-3" id="lblPeriodoValidoInfo">Periodo autorizado por administración: <b>Sin definir</b></p>
+                                
+                                <form id="formSolicitudEmpleado">
+                                    <div class="row g-2">
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label fw-bold small">Nombre Completo</label>
+                                            <input type="text" class="form-control form-control-sm" id="solNombreInput" readonly>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label fw-bold small">Módulo</label>
+                                            <input type="text" class="form-control form-control-sm" id="solModulo" readonly>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label fw-bold small">Puesto</label>
+                                            <input type="text" class="form-control form-control-sm" id="solPuesto" readonly>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-3">
+                                    <h6 class="text-secondary mb-2"><i class="fa-solid fa-calendar-days me-1"></i> Periodos de Vacaciones (Límite: <span id="lblLimiteDias">10</span> días hábiles)</h6>
+                                    
+                                    <div id="containerRangosFechas"></div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarRango" onclick="agregarFilaRango()">
+                                            <i class="fa-solid fa-plus me-1"></i> Agregar periodo descontinuo
+                                        </button>
+                                        <div class="fw-bold">
+                                            Total Días: <span id="totalDiasSolicitados" class="text-primary">0</span> / <span id="lblTotalDiasMax">10</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-danger py-2 small d-none" id="alertaExcesoDias" role="alert">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> <span id="mensajeAlertaTexto">Los días seleccionados superan el límite permitido.</span>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="button" class="btn btn-success btn-sm" id="btnEnviarSolicitud" onclick="enviarSolicitudVacaciones()">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> Guardar y enviar para autorización
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 2 -->
+            <div class="tab-pane fade" id="pills-tabla" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm" onclick="exportarExcel()">
+                                <i class="fa-solid fa-file-excel me-1"></i> Excel (CSV)
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="exportarPDFReporteGeneral()">
+                                <i class="fa-solid fa-file-pdf me-1"></i> Descargar Reporte PDF
+                            </button>
+                        </div>
+                        <div class="input-group" style="width: 260px;">
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Buscar..." onkeyup="filtrarTabla()">
+                            <span class="input-group-text"><i class="fa-solid fa-search small"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0"><i class="fa-solid fa-table me-2 text-primary"></i> Registro General de Solicitudes</h5>
+                            <span class="badge bg-secondary" id="lblFiltroVistaActiva">Vista filtrada por su módulo</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle" id="vacationTable">
+                               <thead>
+                                    <tr>
+                                        <th onclick="ordenarTabla(0)">N° Mac <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(1)">Nombre Completo <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(2)">Módulo <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(3)">Año <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(4)">Periodo <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(5)">Del Día <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(6)">Al Día <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(7)">Días Hábiles <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th onclick="ordenarTabla(8)">Estatus <i class="fa-solid fa-sort sort-icon"></i><div class="resizer"></div></th>
+                                        <th style="width: 80px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h5 class="card-title mb-0"><i class="fa-solid fa-calendar-week me-2 text-primary"></i> Calendario Visual</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="monthSelect" class="form-label mb-0 small fw-bold">Mes:</label>
+                                <select id="monthSelect" class="form-select form-select-sm" style="width: 140px;" onchange="renderCalendar()">
+                                    <option value="5">Junio 2026</option>
+                                    <option value="6">Julio 2026</option>
+                                    <option value="7">Agosto 2026</option>
+                                    <option value="8">Septiembre 2026</option>
+                                    <option value="9" selected>Octubre 2026</option>
+                                    <option value="10">Noviembre 2026</option>
+                                    <option value="11">Diciembre 2026</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <div class="calendar-day-header">Lun</div>
+                            <div class="calendar-day-header">Mar</div>
+                            <div class="calendar-day-header">Mié</div>
+                            <div class="calendar-day-header">Jue</div>
+                            <div class="calendar-day-header">Vie</div>
+                            <div class="calendar-day-header text-muted">Sáb</div>
+                            <div class="calendar-day-header text-muted">Dom</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 3: ADMINISTRADOR -->
+            <div class="tab-pane fade" id="pills-admin" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-5" id="adminLoginBox">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 text-center">
+                                <h4 class="text-danger mb-3"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</h4>
+                                <p class="text-muted small">Ingrese la contraseña de administrador.</p>
+                                <div class="mb-3">
+                                    <input type="password" class="form-control form-control-sm text-center enter-next" id="adminPasswordInput" placeholder="Contraseña">
+                                </div>
+                                <button class="btn btn-danger btn-sm w-100" id="btnAdminLogin" onclick="verificarPasswordAdmin()">Ingresar</button>
+                                <div class="text-center mt-2">
+                                    <button class="btn btn-link text-secondary btn-sm text-decoration-none" onclick="volverALoginEmpleado()"><i class="fa-solid fa-arrow-left me-1"></i> Volver</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-10 d-none" id="adminPanelBox">
+                        <div class="card border-0">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                    <h4 class="text-primary mb-0"><i class="fa-solid fa-gears me-2"></i> Configuración General</h4>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="abrirModalCambiarPasswordAdmin()"><i class="fa-solid fa-key me-1"></i> Contraseña Admin</button>
+                                        <button class="btn btn-dark position-relative btn-sm" onclick="abrirBuzonInboxAdmin()">
+                                            <i class="fa-solid fa-envelope me-1"></i> Buzón Admin
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="badgeBuzonAdminCount">0</span>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesionAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 d-flex gap-2 flex-wrap">
+                                    <button class="btn btn-warning btn-sm fw-bold text-dark" onclick="abrirModalPersonal()">
+                                        <i class="fa-solid fa-users-gear me-1"></i> Directorio y Gestión de Personal
+                                    </button>
+                                    <button class="btn btn-success btn-sm fw-bold" onclick="notificarAdministradorWhatsApp()">
+                                        <i class="fa-brands fa-whatsapp me-1"></i> Reporte WhatsApp
+                                    </button>
+                                </div>
+
+                                <!-- Panel de Gráficos Estadísticos (Solo Administrador) -->
+                                <div class="card bg-light border mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary mb-3"><i class="fa-solid fa-chart-pie me-2"></i> Panel de Estadísticas y Resumen Operativo</h5>
+                                        <div class="row text-center g-3">
+                                            <div class="col-md-3">
+                                                <div class="p-3 bg-white rounded border shadow-sm">
+                                                    <h6 class="text-muted small mb-1">Total Solicitudes</h6>
+                                                    <h3 class="text-primary mb-0" id="statTotalSol">0</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3 bg-white rounded border shadow-sm">
+                                                    <h6 class="text-muted small mb-1">Aceptadas</h6>
+                                                    <h3 class="text-success mb-0" id="statAceptadas">0</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3 bg-white rounded border shadow-sm">
+                                                    <h6 class="text-muted small mb-1">Pendientes</h6>
+                                                    <h3 class="text-warning mb-0" id="statPendientes">0</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3 bg-white rounded border shadow-sm">
+                                                    <h6 class="text-muted small mb-1">Canceladas</h6>
+                                                    <h3 class="text-danger mb-0" id="statCanceladas">0</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                <div class="p-3 bg-white rounded border shadow-sm">
+                                                    <h6 class="text-dark small fw-bold mb-2">Desglose de Solicitudes por Módulo / Área</h6>
+                                                    <div id="statModuloDesglose" class="d-flex flex-wrap gap-2"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="p-3 bg-light rounded border h-100">
+                                            <h6 class="text-dark mb-2"><i class="fa-solid fa-sliders me-1"></i> Límite de Días Hábiles</h6>
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" class="form-control" id="inputLimiteDiasGlobal" value="10" min="1" max="30">
+                                                <button class="btn btn-primary" type="button" onclick="guardarLimiteDiasGlobal()">Actualizar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="p-3 bg-light rounded border h-100">
+                                            <h6 class="text-dark mb-2"><i class="fa-solid fa-calendar-range me-1"></i> Periodo Válido General</h6>
+                                            <div class="row g-1">
+                                                <div class="col-5"><input type="date" class="form-control form-control-sm" id="admPeriodoInicio" value="2026-06-01"></div>
+                                                <div class="col-5"><input type="date" class="form-control form-control-sm" id="admPeriodoFin" value="2026-12-31"></div>
+                                                <div class="col-2"><button class="btn btn-primary btn-sm w-100" onclick="guardarPeriodoGeneral()">OK</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="festivos-container mb-3">
+                                    <h6 class="text-success mb-2"><i class="fa-solid fa-calendar-days me-1"></i> Gestión de Días Inhábiles y Obligatorios</h6>
+                                    <div class="input-group input-group-sm mb-2">
+                                        <input type="text" class="form-control" id="admDescFestivo" placeholder="Concepto (Ej. Inhábil / Obligatorio)">
+                                        <input type="date" class="form-control" id="admFechaUnica">
+                                        <button class="btn btn-danger" type="button" onclick="guardarDiaUnico('Bloqueado')"><i class="fa-solid fa-ban me-1"></i> Inhábil</button>
+                                        <button class="btn btn-primary" type="button" onclick="guardarDiaUnico('Obligatorio')"><i class="fa-solid fa-calendar-plus me-1"></i> Obligatorio</button>
+                                    </div>
+                                    <div id="listaFestivosBadges" class="d-flex flex-wrap gap-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL BUZÓN MENSAJES USUARIO -->
+    <div class="modal fade" id="modalBuzonUser" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-envelope me-2"></i> Mi Buzón de Notificaciones</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="containerBuzonUserBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL PERSONAL -->
+    <div class="modal fade" id="modalHistorialPersonal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-clock-rotate-left me-2"></i> Historial de Solicitudes</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="printableHistorialPersonal">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Periodo</th>
+                                    <th>Del Día</th>
+                                    <th>Al Día</th>
+                                    <th>Días</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorialPersonalBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fa-solid fa-print me-1"></i> Imprimir Historial</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CAMBIAR CONTRASEÑA USUARIO -->
+    <div class="modal fade" id="modalCambiarPasswordUser" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-key me-2"></i> Cambiar Contraseña</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Nueva Contraseña</label>
+                        <input type="password" class="form-control form-control-sm" id="txtNuevoPasswordUser" placeholder="Contraseña">
+                    </div>
+                    <div class="text-end">
+                        <button class="btn btn-primary btn-sm" onclick="guardarPasswordUsuario()">Actualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CAMBIAR CONTRASEÑA ADMIN -->
+    <div class="modal fade" id="modalCambiarPasswordAdmin" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-key me-2"></i> Contraseña Admin</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Nueva Contraseña</label>
+                        <input type="password" class="form-control form-control-sm" id="txtNuevoPasswordAdmin" placeholder="Contraseña">
+                    </div>
+                    <div class="text-end">
+                        <button class="btn btn-primary btn-sm" onclick="guardarNuevoPasswordAdmin()">Actualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DIRECTORIO Y GESTIÓN DE PERSONAL -->
+    <div class="modal fade" id="modalPersonal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-users-gear me-2"></i> Directorio y Gestión de Personal</h6>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-2">
+                        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-success btn-sm" onclick="descargarBaseDatosPersonal()"><i class="fa-solid fa-download me-1"></i> Descargar Base de Datos</button>
+                                <label class="btn btn-outline-primary btn-sm mb-0 cursor-pointer">
+                                    <i class="fa-solid fa-upload me-1"></i> Subir Base de Datos <input type="file" id="fileImportPersonal" accept=".csv" class="d-none" onchange="importarBaseDatosPersonal(event)">
+                                </label>
+                            </div>
+                            <button class="btn btn-success btn-sm" onclick="mostrarFormularioNuevoPersonal()"><i class="fa-solid fa-user-plus me-1"></i> Agregar Personal</button>
+                        </div>
+                    </div>
+                    <div class="card bg-light mb-3 d-none" id="cardFormPersonal">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-primary small" id="tituloFormEmp">Nuevo Personal</h6>
+                            <input type="hidden" id="empEditIndex" value="-1">
+                            <div class="row g-2">
+                                <div class="col-md-3"><label class="form-label small">Nombre Completo</label><input type="text" class="form-control form-control-sm" id="empNombreInput" required></div>
+                                <div class="col-md-1"><label class="form-label small">N° MAC</label><input type="text" class="form-control form-control-sm" id="empMacInput" required></div>
+                                <div class="col-md-2"><label class="form-label small">Módulo</label><input type="text" class="form-control form-control-sm" id="empModuloInput" required></div>
+                                <div class="col-md-2"><label class="form-label small">Puesto</label><input type="text" class="form-control form-control-sm" id="empPuestoInput" required></div>
+                                <div class="col-md-2"><label class="form-label small">Correo</label><input type="email" class="form-control form-control-sm" id="empCorreoInput" required></div>
+                                <div class="col-md-2"><label class="form-label small">Celular</label><input type="text" class="form-control form-control-sm" id="empTelefonoInput" required></div>
+                                <div class="col-md-2"><label class="form-label small">Contraseña</label><input type="text" class="form-control form-control-sm" id="empPasswordInput" required></div>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cardFormPersonal').classList.add('d-none')">Cancelar</button>
+                                <button class="btn btn-primary btn-sm" onclick="guardarPersonalDirectorio()">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle" id="tablaPersonal">
+                            <thead>
+                                <tr>
+                                    <th>N° MAC</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Módulo</th>
+                                    <th>Puesto</th>
+                                    <th>Correo</th>
+                                    <th>Celular</th>
+                                    <th>Contraseña</th>
+                                    <th style="width: 80px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPersonalBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CARTA OFICIAL -->
+    <div class="modal fade" id="modalCartaOficial" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-file-pdf me-2"></i> Carta Oficial de Vacaciones</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="printableLetter" style="background: white; font-family: 'Times New Roman', Times, serif; color: #000; font-size: 11pt;"></div>
+                <div class="modal-footer py-1 justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-success btn-sm" onclick="enviarWhatsAppSolicitud()"><i class="fa-brands fa-whatsapp me-1"></i> WhatsApp</button>
+                        <button type="button" class="btn btn-info btn-sm text-white" onclick="enviarCorreoSimulado()"><i class="fa-solid fa-envelope me-1"></i> Correo</button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="window.print()"><i class="fa-solid fa-print me-1"></i> Imprimir PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR OCULTO PARA REPORTE GENERAL PDF -->
+    <div id="printableReporteGeneral" class="d-none">
+        <div style="font-family: 'Times New Roman', serif; padding: 20px;">
+            <h3 style="text-align: center; margin-bottom: 5px;">03 JUNTA DISTRITAL EJECUTIVA EN COAHUILA</h3>
+            <h4 style="text-align: center; margin-bottom: 20px; font-weight: normal;">REPORTE GENERAL DE SOLICITUDES DE VACACIONES</h4>
+            <table border="1" cellspacing="0" cellpadding="6" style="width: 100%; border-collapse: collapse; font-size: 10pt;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>MAC</th>
+                        <th>Nombre Completo</th>
+                        <th>Módulo</th>
+                        <th>Periodo</th>
+                        <th>Del Día</th>
+                        <th>Al Día</th>
+                        <th>Días</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody id="reporteGeneralPdfBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let passwordAdmin = "admin2026";
+        let usuarioActual = null;
+        let esAdminGlobal = false;
+        let limiteDiasGlobal = 10;
+
+        let catalogoEmpleados = [
+            { nombre: "PEDRO CECILIO ORNELAS IÑIGUEZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "pedro@ine.mx", telefono: "8661234567", password: "050351" },
+            { nombre: "NOE APOLINAR LINARES GONZALEZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "noe@ine.mx", telefono: "8661234568", password: "050351" },
+            { nombre: "IRAZEMA MARTINEZ CRUZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "irazema@ine.mx", telefono: "8661234569", password: "050351" },
+            { nombre: "ELIZABETH MELENDEZ RIOS", mac: "51", modulo: "050351", puesto: "Operador", correo: "elizabeth@ine.mx", telefono: "8661234570", password: "050351" },
+            { nombre: "CLAUDIA VARELA CERNA", mac: "51", modulo: "050351", puesto: "Operador", correo: "claudia@ine.mx", telefono: "8661234571", password: "050351" },
+            { nombre: "VANESSA MANCILLA ARMENDARIZ", mac: "51", modulo: "050351", puesto: "Operador", correo: "vanessa@ine.mx", telefono: "8661234572", password: "050351" },
+            { nombre: "YADIRA YANETH ROBLES RIVERA", mac: "51", modulo: "050351", puesto: "Operador", correo: "yadira@ine.mx", telefono: "8661234573", password: "050351" },
+            { nombre: "JORGE PANAYIOTIS BRIÑAS GARCIA", mac: "51", modulo: "050351", puesto: "Digitalizador", correo: "jorge@ine.mx", telefono: "8661234574", password: "050351" },
+            { nombre: "BERTHINA SANCHEZ CORONADO", mac: "51", modulo: "050351", puesto: "Auxiliar", correo: "berthina@ine.mx", telefono: "8661234575", password: "050351" },
+            { nombre: "ARNOLDO MONTENEGRO GARZA", mac: "53", modulo: "050353", puesto: "Responsable", correo: "arnoldo@ine.mx", telefono: "8661234576", password: "050353" },
+            { nombre: "DENISSE ISABEL YAÑEZ MORENO", mac: "53", modulo: "050353", puesto: "Operador", correo: "denisse@ine.mx", telefono: "8661234577", password: "050353" },
+            { nombre: "NAYELI FABIOLA CUELLAR MEZA", mac: "53", modulo: "050353", puesto: "Operador", correo: "nayeli@ine.mx", telefono: "8661234578", password: "050353" },
+            { nombre: "ADRIAN HERIBERTO ZUÑIGA LOPEZ", mac: "53", modulo: "050353", puesto: "Operador", correo: "adrian@ine.mx", telefono: "8661234579", password: "050353" },
+            { nombre: "SOLAR SALAS RICARDO", mac: "54", modulo: "050354", puesto: "Responsable", correo: "ricardo@ine.mx", telefono: "8661234580", password: "050354" },
+            { nombre: "JESUS ARTURO MUÑOZ RAMOS", mac: "54", modulo: "050354", puesto: "Operador", correo: "jesus@ine.mx", telefono: "8661234581", password: "050354" },
+            { nombre: "DOMINGUEZ CARREON RANDY REGINALDO", mac: "54", modulo: "050354", puesto: "Operador", correo: "randy@ine.mx", telefono: "8661234582", password: "050354" },
+            { nombre: "BRENDA AZUCENA MARTINEZ GOMEZ", mac: "55", modulo: "Oficina", puesto: "Jefe", correo: "brenda@ine.mx", telefono: "8661234583", password: "oficina" },
+            { nombre: "FELIX MIGUEL AGUIRRE MARTINEZ", mac: "55", modulo: "Oficina", puesto: "Cartógrafo", correo: "felix@ine.mx", telefono: "8661234584", password: "oficina" },
+            { nombre: "JULIO CESAR LOZANO ESPARZA", mac: "55", modulo: "Oficina", puesto: "Cartógrafo", correo: "julio@ine.mx", telefono: "8661234585", password: "oficina" },
+            { nombre: "BUENO ARREDONDO NORMA ANGELITA", mac: "55", modulo: "Oficina", puesto: "Técnica", correo: "norma@ine.mx", telefono: "8661234586", password: "oficina" },
+            { nombre: "CARDENAS LEDEZMA MARIO ALBERTO", mac: "55", modulo: "Oficina", puesto: "Soporte", correo: "mario@carrivers.com", telefono: "8661234587", password: "oficina" }
+        ];
+
+        let registros = [
+            { id: 1, mac: "51", nombre: "PEDRO CECILIO ORNELAS IÑIGUEZ", area: "050351", anio: "2026", periodo: "PRIMER PERIODO", delDia: "2026-06-15", alDia: "2026-06-26", estado: "Solicitado", motivo: "" },
+            { id: 2, mac: "51", nombre: "NOE APOLINAR LINARES GONZALEZ", area: "050351", anio: "2026", periodo: "PRIMER PERIODO", delDia: "2026-09-21", alDia: "2026-10-02", estado: "Aceptado", motivo: "" }
+        ];
+
+        let periodoGeneral = { inicio: "2026-06-01", fin: "2026-12-31" };
+        let restriccionesAdmin = [];
+        let notificacionesUsuarios = {};
+        let buzonAdmin = [];
+        let ultimoTextoNotificacionWhatsApp = "";
+
+        const colorPalette = ["#0f172a", "#2563eb", "#059669", "#d97706", "#7c3aed", "#db2777", "#0891b2"];
+
+        function getColorForName(nombre) {
+            let hash = 0;
+            for (let i = 0; i < nombre.length; i++) { hash = nombre.charCodeAt(i) + ((hash << 5) - hash); }
+            return colorPalette[Math.abs(hash) % colorPalette.length];
+        }
+
+        function formatearFechaDDMMYYYY(fechaStr) {
+            if (!fechaStr) return "";
+            let p = fechaStr.split('-');
+            if (p.length === 3) return `${p[2]}-${p[1]}-${p[0]}`;
+            return fechaStr;
+        }
+
+        function calcularDiasHabiles(fechaInicioStr, fechaFinStr) {
+            if (!fechaInicioStr || !fechaFinStr) return 0;
+            let start = new Date(fechaInicioStr + 'T00:00:00');
+            let end = new Date(fechaFinStr + 'T00:00:00');
+            let count = 0, current = new Date(start);
+            while (current <= end) {
+                let dayOfWeek = current.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+                current.setDate(current.getDate() + 1);
+            }
+            return count;
+        }
+
+        window.onload = function() {
+            poblarSelectLogin();
+            configurarNavegacionEnter();
+        };
+
+        function poblarSelectLogin() {
+            const select = document.getElementById('loginNombreSelect');
+            select.innerHTML = '<option value="">-- Seleccione su nombre --</option>';
+            catalogoEmpleados.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.nombre;
+                opt.textContent = `${emp.nombre} (${emp.modulo})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function validarLoginEmpleado() {
+            const nombre = document.getElementById('loginNombreSelect').value;
+            const pass = document.getElementById('loginPasswordInput').value;
+            if (!nombre) { alert('Seleccione su nombre.'); return; }
+            const emp = catalogoEmpleados.find(e => e.nombre === nombre);
+            if (!emp || pass !== emp.password) { alert('Contraseña incorrecta.'); return; }
+
+            usuarioActual = emp;
+            esAdminGlobal = false;
+            
+            document.getElementById('loginEmpleadoContainer').classList.add('d-none');
+            document.getElementById('mainAppContainer').classList.remove('d-none');
+            document.getElementById('tabAdminNavItem').style.display = 'none';
+
+            document.getElementById('lblUsuarioLogueado').textContent = emp.nombre;
+            document.getElementById('lblModuloUsuarioContexto').textContent = `Módulo / Área: ${emp.modulo}`;
+            document.getElementById('solNombreInput').value = emp.nombre;
+            document.getElementById('solModulo').value = emp.modulo;
+            document.getElementById('solPuesto').value = emp.puesto;
+
+            document.getElementById('lblFiltroVistaActiva').textContent = `Vista filtrada (Módulo ${emp.modulo})`;
+
+            renderTablaConsultaPrevia();
+            renderTable();
+            actualizarContadorBuzonUsuario();
+            cargarPeriodosObligatoriosAutomaticos();
+        }
+
+        function irAlMenuAdminDirecto() {
+            document.getElementById('loginEmpleadoContainer').classList.add('d-none');
+            document.getElementById('tabAdminNavItem').style.display = 'block';
+            const adminTab = document.getElementById('pills-admin-tab');
+            new bootstrap.Tab(adminTab).show();
+            document.getElementById('adminLoginBox').classList.remove('d-none');
+            document.getElementById('adminPanelBox').classList.add('d-none');
+            document.getElementById('mainAppContainer').classList.remove('d-none');
+        }
+
+        function volverALoginEmpleado() {
+            document.getElementById('mainAppContainer').classList.add('d-none');
+            document.getElementById('loginEmpleadoContainer').classList.remove('d-none');
+            document.getElementById('loginPasswordInput').value = '';
+        }
+
+        function cerrarSesion() {
+            usuarioActual = null;
+            esAdminGlobal = false;
+            document.getElementById('mainAppContainer').classList.add('d-none');
+            document.getElementById('loginEmpleadoContainer').classList.remove('d-none');
+            document.getElementById('loginPasswordInput').value = '';
+        }
+
+        function cerrarSesionAdmin() {
+            document.getElementById('adminPanelBox').classList.add('d-none');
+            document.getElementById('adminLoginBox').classList.remove('d-none');
+            document.getElementById('adminPasswordInput').value = '';
+            cerrarSesion();
+        }
+
+        function configurarNavegacionEnter() {
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const target = e.target;
+                    if (target.id === 'loginPasswordInput') document.getElementById('btnLoginAcceder').click();
+                    else if (target.id === 'adminPasswordInput') document.getElementById('btnAdminLogin').click();
+                }
+            });
+        }
+
+        function renderTablaConsultaPrevia() {
+            const tbody = document.getElementById('tablaConsultaPreviaBody');
+            tbody.innerHTML = '';
+            let filtrados = registros;
+            if (!esAdminGlobal && usuarioActual) {
+                filtrados = registros.filter(r => r.area === usuarioActual.modulo || r.nombre === usuarioActual.nombre);
+            }
+            filtrados.forEach(r => {
+                let badgeColor = 'bg-secondary';
+                if (r.estado === 'Aceptado') badgeColor = 'bg-success';
+                else if (r.estado === 'Cancelado') badgeColor = 'bg-danger';
+                else if (r.estado === 'Solicitado') badgeColor = 'bg-warning text-dark';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${r.nombre}</td>
+                        <td>${r.area}</td>
+                        <td>${formatearFechaDDMMYYYY(r.delDia)} al ${formatearFechaDDMMYYYY(r.alDia)}</td>
+                        <td><span class="badge ${badgeColor}">${r.estado}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function cargarPeriodosObligatoriosAutomaticos() {
+            const container = document.getElementById('containerRangosFechas');
+            container.innerHTML = '';
+            restriccionesAdmin.forEach(r => {
+                if (r.tipo === 'Obligatorio' && usuarioActual && usuarioActual.modulo !== 'Oficina') {
+                    container.innerHTML += `
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-5"><input type="date" class="form-control form-control-sm" value="${r.del}" readonly></div>
+                            <div class="col-5"><input type="date" class="form-control form-control-sm" value="${r.al}" readonly></div>
+                            <div class="col-2"><span class="badge bg-primary w-100">Obligatorio</span></div>
+                        </div>`;
+                }
+            });
+            agregarFilaRango();
+            recalcularTotalDiasSolicitud();
+        }
+
+        function agregarFilaRango() {
+            const container = document.getElementById('containerRangosFechas');
+            const rowId = 'rango_row_' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'row g-2 align-items-center mb-2 rango-item';
+            div.id = rowId;
+            div.innerHTML = `
+                <div class="col-5">
+                    <input type="date" class="form-control form-control-sm fecha-del" onchange="recalcularTotalDiasSolicitud()" required>
+                </div>
+                <div class="col-5">
+                    <input type="date" class="form-control form-control-sm fecha-al" onchange="recalcularTotalDiasSolicitud()" required>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="eliminarFilaRango('${rowId}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+            recalcularTotalDiasSolicitud();
+        }
+
+        function eliminarFilaRango(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) { row.remove(); recalcularTotalDiasSolicitud(); }
+        }
+
+        function recalcularTotalDiasSolicitud() {
+            let total = 0;
+            let errorMsg = "";
+
+            restriccionesAdmin.forEach(r => {
+                if (r.tipo === 'Obligatorio' && usuarioActual && usuarioActual.modulo !== 'Oficina') {
+                    total += calcularDiasHabiles(r.del, r.al);
+                }
+            });
+
+            const filas = document.querySelectorAll('.rango-item');
+            filas.forEach(f => {
+                const del = f.querySelector('.fecha-del').value;
+                const al = f.querySelector('.fecha-al').value;
+                if (del && al) {
+                    let dStart = new Date(del + 'T00:00:00'), dEnd = new Date(al + 'T00:00:00');
+                    restriccionesAdmin.forEach(r => {
+                        if (r.tipo === 'Bloqueado') {
+                            let rStart = new Date(r.del + 'T00:00:00'), rEnd = new Date(r.al + 'T00:00:00');
+                            if (!(dEnd < rStart || dStart > rEnd)) errorMsg = `Incluye día inhábil (${r.desc}).`;
+                        }
+                    });
+                    total += calcularDiasHabiles(del, al);
+                }
+            });
+
+            document.getElementById('totalDiasSolicitados').textContent = total;
+            document.getElementById('lblLimiteDias').textContent = limiteDiasGlobal;
+            document.getElementById('lblTotalDiasMax').textContent = limiteDiasGlobal;
+
+            const btnAgregar = document.getElementById('btnAgregarRango');
+            const alerta = document.getElementById('alertaExcesoDias');
+            const txtAlerta = document.getElementById('mensajeAlertaTexto');
+
+            if (errorMsg) {
+                txtAlerta.textContent = errorMsg; alerta.classList.remove('d-none'); btnAgregar.setAttribute('disabled', 'true');
+            } else if (total > limiteDiasGlobal) {
+                txtAlerta.textContent = `Límite superado (${limiteDiasGlobal} días).`; alerta.classList.remove('d-none'); btnAgregar.setAttribute('disabled', 'true');
+            } else {
+                alerta.classList.add('d-none');
+                if (total === limiteDiasGlobal) btnAgregar.setAttribute('disabled', 'true');
+                else btnAgregar.removeAttribute('disabled');
+            }
+        }
+
+        function enviarSolicitudVacaciones() {
+            if (!usuarioActual) return;
+            const nombre = usuarioActual.nombre, modulo = usuarioActual.modulo, puesto = usuarioActual.puesto;
+            const totalDias = parseInt(document.getElementById('totalDiasSolicitados').textContent);
+
+            if (totalDias !== limiteDiasGlobal) { alert(`Debe completar exactamente ${limiteDiasGlobal} días.`); return; }
+
+            let periodosTextoHtml = '', periodosMsgWhatsApp = '';
+
+            restriccionesAdmin.forEach(r => {
+                if (r.tipo === 'Obligatorio' && usuarioActual.modulo !== 'Oficina') {
+                    let habilesOblig = calcularDiasHabiles(r.del, r.al);
+                    periodosTextoHtml += `<li>Periodo: Del <b>${formatearFechaDDMMYYYY(r.del)}</b> al <b>${formatearFechaDDMMYYYY(r.al)}</b> (${habilesOblig} días)</li>`;
+                    registros.push({
+                        id: registros.length > 0 ? Math.max(...registros.map(reg => reg.id)) + 1 : 1,
+                        mac: usuarioActual.mac, nombre, area: modulo, anio: "2026", periodo: "PERIODO INSTITUCIONAL",
+                        delDia: r.del, alDia: r.al, estado: "Solicitado", motivo: ""
+                    });
+                }
+            });
+
+            const filas = document.querySelectorAll('.rango-item');
+            filas.forEach((f, idx) => {
+                const del = f.querySelector('.fecha-del').value, al = f.querySelector('.fecha-al').value;
+                if (del && al) {
+                    let habiles = calcularDiasHabiles(del, al);
+                    periodosTextoHtml += `<li>Periodo ${idx + 1}: Del <b>${formatearFechaDDMMYYYY(del)}</b> al <b>${formatearFechaDDMMYYYY(al)}</b> (${habiles} días)</li>`;
+                    periodosMsgWhatsApp += `\n- Periodo ${idx + 1}: ${formatearFechaDDMMYYYY(del)} al ${formatearFechaDDMMYYYY(al)}`;
+                    registros.push({
+                        id: registros.length > 0 ? Math.max(...registros.map(reg => reg.id)) + 1 : 1,
+                        mac: usuarioActual.mac, nombre, area: modulo, anio: "2026", periodo: `PERIODO ${idx + 1}`,
+                        delDia: del, alDia: al, estado: "Solicitado", motivo: ""
+                    });
+                }
+            });
+
+            ultimoTextoNotificacionWhatsApp = `Hola Administrador, *${nombre}* (${modulo}) envió su solicitud:${periodosMsgWhatsApp}`;
+
+            renderTablaConsultaPrevia();
+            renderTable();
+
+            const fechaHoy = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('printableLetter').innerHTML = `
+                <div class="text-end mb-3">Monclova, Coahuila, a ${fechaHoy}.</div>
+                <div class="mb-3">
+                    <b>C. VOCAL DEL REGISTRO FEDERAL DE ELECTORES</b><br>
+                    <b>03 JUNTA DISTRITAL EJECUTIVA EN COAHUILA</b><br>
+                    <b>PRESENTE.</b>
+                </div>
+                <p style="text-align: justify; line-height: 1.5;">
+                    El que suscribe, <b>${nombre}</b>, con puesto de <b>${puesto}</b> adscrito/a al Módulo <b>${modulo}</b>, solicito la autorización de mis <b>${limiteDiasGlobal} días hábiles de vacaciones</b> correspondientes al ejercicio 2026:
+                </p>
+                <ul class="mb-3">${periodosTextoHtml}</ul>
+                <div class="text-center mt-5">
+                    <b>ATENTAMENTE</b><br><br><br>
+                    __________________________________________________<br>
+                    <b>${nombre}</b><br>${puesto}
+                </div>
+            `;
+            new bootstrap.Modal(document.getElementById('modalCartaOficial')).show();
+        }
+
+        function enviarWhatsAppSolicitud() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(ultimoTextoNotificacionWhatsApp)}`, '_blank'); }
+        function enviarCorreoSimulado() { alert('Correo enviado a administración.'); }
+        function notificarAdministradorWhatsApp() {
+            let msg = `Reporte general solicitudes:\n`;
+            registros.forEach(r => { if(r.mac !== 'INST') msg += `\n- ${r.nombre}: ${formatearFechaDDMMYYYY(r.delDia)} al ${formatearFechaDDMMYYYY(r.alDia)} [${r.estado}]`; });
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Buzón Usuario
+        function actualizarContadorBuzonUsuario() {
+            if (!usuarioActual) return;
+            if (!notificacionesUsuarios[usuarioActual.nombre]) notificacionesUsuarios[usuarioActual.nombre] = [];
+            let unread = notificacionesUsuarios[usuarioActual.nombre].filter(n => !n.leido).length;
+            document.getElementById('badgeBuzonUserCount').textContent = unread;
+        }
+
+        function abrirBuzonInboxUsuario() {
+            if (!usuarioActual) return;
+            if (!notificacionesUsuarios[usuarioActual.nombre]) notificacionesUsuarios[usuarioActual.nombre] = [];
+            const container = document.getElementById('containerBuzonUserBody');
+            container.innerHTML = '';
+            let notifs = notificacionesUsuarios[usuarioActual.nombre];
+            if (notifs.length === 0) {
+                container.innerHTML = `<div class="text-center text-muted py-3 small">No hay notificaciones nuevas.</div>`;
+            } else {
+                notifs.forEach((n, idx) => {
+                    n.leido = true;
+                    container.innerHTML += `<div class="alert alert-info py-2 small mb-2"><i class="fa-solid fa-circle-info me-1"></i> ${n.texto}</div>`;
+                });
+                actualizarContadorBuzonUsuario();
+            }
+            new bootstrap.Modal(document.getElementById('modalBuzonUser')).show();
+        }
+
+        function abrirHistorialPersonal() {
+            if (!usuarioActual) return;
+            const tbody = document.getElementById('tablaHistorialPersonalBody');
+            tbody.innerHTML = '';
+            let misRegs = registros.filter(r => r.nombre === usuarioActual.nombre);
+            if (misRegs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Sin registros.</td></tr>`;
+            } else {
+                misRegs.forEach(r => {
+                    let d = calcularDiasHabiles(r.delDia, r.alDia);
+                    tbody.innerHTML += `<tr><td>${r.periodo}</td><td>${formatearFechaDDMMYYYY(r.delDia)}</td><td>${formatearFechaDDMMYYYY(r.alDia)}</td><td>${d}</td><td>${r.estado}</td></tr>`;
+                });
+            }
+            new bootstrap.Modal(document.getElementById('modalHistorialPersonal')).show();
+        }
+
+        function abrirModalCambiarPasswordUsuario() {
+            document.getElementById('txtNuevoPasswordUser').value = '';
+            new bootstrap.Modal(document.getElementById('modalCambiarPasswordUser')).show();
+        }
+
+        function guardarPasswordUsuario() {
+            let nuevo = document.getElementById('txtNuevoPasswordUser').value;
+            if (!nuevo) { alert('Contraseña inválida'); return; }
+            usuarioActual.password = nuevo;
+            alert('Contraseña actualizada con éxito.');
+            bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordUser')).hide();
+        }
+
+        // Buzón y Gestión Admin
+        function actualizarContadorBuzonAdmin() { document.getElementById('badgeBuzonAdminCount').textContent = buzonAdmin.length; }
+        function abrirBuzonInboxAdmin() {}
+
+        function verificarPasswordAdmin() {
+            if (document.getElementById('adminPasswordInput').value === passwordAdmin) {
+                esAdminGlobal = true;
+                document.getElementById('adminLoginBox').classList.add('d-none');
+                document.getElementById('adminPanelBox').classList.remove('d-none');
+                document.getElementById('lblFiltroVistaActiva').textContent = "Vista general (Administrador)";
+                actualizarPanelEstadisticasAdmin();
+                renderTable();
+            } else { alert('Contraseña incorrecta.'); }
+        }
+
+        function actualizarPanelEstadisticasAdmin() {
+            document.getElementById('statTotalSol').textContent = registros.length;
+            document.getElementById('statAceptadas').textContent = registros.filter(r => r.estado === 'Aceptado').length;
+            document.getElementById('statPendientes').textContent = registros.filter(r => r.estado === 'Solicitado').length;
+            document.getElementById('statCanceladas').textContent = registros.filter(r => r.estado === 'Cancelado').length;
+
+            let modulosCount = {};
+            registros.forEach(r => {
+                modulosCount[r.area] = (modulosCount[r.area] || 0) + 1;
+            });
+            let desgl = '';
+            for (let m in modulosCount) {
+                desgl += `<span class="badge bg-secondary">Módulo ${m}: ${modulosCount[m]} solicitudes</span>`;
+            }
+            document.getElementById('statModuloDesglose').innerHTML = desgl || '<span class="text-muted small">Sin registros</span>';
+        }
+
+        function abrirModalCambiarPasswordAdmin() {
+            document.getElementById('txtNuevoPasswordAdmin').value = '';
+            new bootstrap.Modal(document.getElementById('modalCambiarPasswordAdmin')).show();
+        }
+
+        function guardarNuevoPasswordAdmin() {
+            let n = document.getElementById('txtNuevoPasswordAdmin').value;
+            if(!n) return;
+            passwordAdmin = n;
+            alert('Contraseña admin actualizada.');
+            bootstrap.Modal.getInstance(document.getElementById('modalCambiarPasswordAdmin')).hide();
+        }
+
+        function guardarLimiteDiasGlobal() {
+            limiteDiasGlobal = parseInt(document.getElementById('inputLimiteDiasGlobal').value) || 10;
+            alert(`Límite actualizado a ${limiteDiasGlobal} días.`);
+        }
+
+        function guardarPeriodoGeneral() {
+            periodoGeneral = { inicio: document.getElementById('admPeriodoInicio').value, fin: document.getElementById('admPeriodoFin').value };
+            document.getElementById('lblPeriodoValidoInfo').innerHTML = `Periodo autorizado: Del <b>${formatearFechaDDMMYYYY(periodoGeneral.inicio)}</b> al <b>${formatearFechaDDMMYYYY(periodoGeneral.fin)}</b>`;
+            alert('Periodo general actualizado.');
+        }
+
+        function guardarDiaUnico(tipo) {
+            let desc = document.getElementById('admDescFestivo').value || (tipo === 'Bloqueado' ? 'Inhábil' : 'Obligatorio');
+            let fecha = document.getElementById('admFechaUnica').value;
+            if (!fecha) return;
+            restriccionesAdmin.push({ desc, del: fecha, al: fecha, tipo });
+            document.getElementById('admDescFestivo').value = '';
+            document.getElementById('admFechaUnica').value = '';
+            actualizarBadgesFestivos();
+            renderCalendar();
+        }
+
+        function actualizarBadgesFestivos() {
+            const container = document.getElementById('listaFestivosBadges');
+            container.innerHTML = '';
+            restriccionesAdmin.forEach((cfg, idx) => {
+                let cl = cfg.tipo === 'Obligatorio' ? 'obligatorio' : 'inhabile';
+                container.innerHTML += `<span class="badge-festivo ${cl}">${cfg.desc}: ${formatearFechaDDMMYYYY(cfg.del)} <button type="button" class="btn-close btn-close-white btn-sm" onclick="restriccionesAdmin.splice(${idx},1); actualizarBadgesFestivos(); renderCalendar();"></button></span>`;
+            });
+        }
+
+        // Tabla y Filtros
+        function renderTable(dataToRender = registros) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            let filtrados = dataToRender;
+            if (!esAdminGlobal && usuarioActual) {
+                filtrados = dataToRender.filter(r => r.area === usuarioActual.modulo || r.nombre === usuarioActual.nombre);
+            }
+
+            filtrados.forEach((reg) => {
+                let diasHabiles = calcularDiasHabiles(reg.delDia, reg.alDia);
+                let accionesHtml = '', selectEstadoHtml = '';
+
+                if (esAdminGlobal) {
+                    selectEstadoHtml = `
+                        <select class="form-select form-select-sm" style="font-size: 0.75rem; padding: 1px 3px;" onchange="cambiarEstadoAdmin(${reg.id}, this.value)">
+                            <option value="Solicitado" ${reg.estado==='Solicitado'?'selected':''}>Solicitado</option>
+                            <option value="Aceptado" ${reg.estado==='Aceptado'?'selected':''}>Aceptado</option>
+                            <option value="Cancelado" ${reg.estado==='Cancelado'?'selected':''}>Cancelado</option>
+                        </select>`;
+                    accionesHtml = `<button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="eliminarRegistro(${reg.id})"><i class="fa-solid fa-trash small"></i></button>`;
+                } else {
+                    selectEstadoHtml = `<span class="badge ${reg.estado==='Aceptado'?'bg-success':(reg.estado==='Cancelado'?'bg-danger':'bg-warning text-dark')}">${reg.estado}</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${reg.mac}</td>
+                        <td class="fw-bold">${reg.nombre}</td>
+                        <td>${reg.area}</td>
+                        <td>${reg.anio}</td>
+                        <td>${reg.periodo}</td>
+                        <td>${formatearFechaDDMMYYYY(reg.delDia)}</td>
+                        <td>${formatearFechaDDMMYYYY(reg.alDia)}</td>
+                        <td>${diasHabiles} d</td>
+                        <td>${selectEstadoHtml}</td>
+                        <td>${accionesHtml}</td>
+                    </tr>`;
+            });
+            renderTablaConsultaPrevia();
+            renderCalendar();
+            if(esAdminGlobal) actualizarPanelEstadisticasAdmin();
+        }
+
+        function cambiarEstadoAdmin(id, nuevoEstado) {
+            const reg = registros.find(r => r.id === id);
+            if (!reg) return;
+            if (nuevoEstado === 'Cancelado') {
+                let motivo = prompt("Motivo de la cancelación:", "Cruces de agenda o personal insuficiente");
+                if (motivo === null) return;
+                reg.motivo = motivo;
+                reg.estado = nuevoEstado;
+                if (!notificacionesUsuarios[reg.nombre]) notificacionesUsuarios[reg.nombre] = [];
+                notificacionesUsuarios[reg.nombre].push({ id: Date.now(), texto: `Solicitud (${formatearFechaDDMMYYYY(reg.delDia)} al ${formatearFechaDDMMYYYY(reg.alDia)}) CANCELADA. Motivo: ${motivo}`, leido: false });
+            } else {
+                reg.estado = nuevoEstado;
+                if (!notificacionesUsuarios[reg.nombre]) notificacionesUsuarios[reg.nombre] = [];
+                notificacionesUsuarios[reg.nombre].push({ id: Date.now(), texto: `Solicitud (${formatearFechaDDMMYYYY(reg.delDia)} al ${formatearFechaDDMMYYYY(reg.alDia)}) ACEPTADA.`, leido: false });
+            }
+            renderTable();
+        }
+
+        function eliminarRegistro(id) { registros = registros.filter(r => r.id !== id); renderTable(); }
+        function filtrarTabla() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderTable(registros.filter(r => r.nombre.toLowerCase().includes(q) || r.area.toLowerCase().includes(q)));
+        }
+
+        function exportarPDFReporteGeneral() {
+            const tbody = document.getElementById('reporteGeneralPdfBody');
+            tbody.innerHTML = '';
+            registros.forEach(r => {
+                tbody.innerHTML += `<tr>
+                    <td>${r.mac}</td><td>${r.nombre}</td><td>${r.area}</td><td>${r.periodo}</td>
+                    <td>${formatearFechaDDMMYYYY(r.delDia)}</td><td>${formatearFechaDDMMYYYY(r.alDia)}</td>
+                    <td>${calcularDiasHabiles(r.delDia, r.alDia)}</td><td>${r.estado}</td>
+                </tr>`;
+            });
+            let contenidoOriginal = document.body.innerHTML;
+            document.body.innerHTML = document.getElementById('printableReporteGeneral').innerHTML;
+            window.print();
+            document.body.innerHTML = contenidoOriginal;
+            window.location.reload();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            while (grid.children.length > 7) { grid.removeChild(grid.lastChild); }
+            const year = 2026, month = parseInt(document.getElementById('monthSelect').value);
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevTotalDays = new Date(year, month, 0).getDate();
+
+            for (let i = adjustedFirstDay - 1; i >= 0; i--) {
+                grid.innerHTML += `<div class="calendar-cell other-month"><div class="calendar-date-number">${prevTotalDays - i}</div></div>`;
+            }
+
+            const mapVacaciones = {};
+            restriccionesAdmin.forEach(r => {
+                let start = new Date(r.del + 'T00:00:00'), end = new Date(r.al + 'T00:00:00'), cur = new Date(start);
+                while (cur <= end) {
+                    if (cur.getDay() !== 0 && cur.getDay() !== 6 && cur.getFullYear() === year && cur.getMonth() === month) {
+                        let ds = cur.toISOString().split('T')[0];
+                        if (!mapVacaciones[ds]) mapVacaciones[ds] = [];
+                        mapVacaciones[ds].push({ nombre: r.desc, color: r.tipo === 'Bloqueado' ? '#dc3545' : '#2563eb' });
+                    }
+                    cur.setDate(cur.getDate() + 1);
+                }
+            });
+
+            registros.forEach(reg => {
+                if (reg.estado === 'Cancelado') return;
+                let start = new Date(reg.delDia + 'T00:00:00'), end = new Date(reg.alDia + 'T00:00:00'), current = new Date(start);
+                while (current <= end) {
+                    if (current.getDay() !== 0 && current.getDay() !== 6 && current.getFullYear() === year && current.getMonth() === month) {
+                        let dateStr = current.toISOString().split('T')[0];
+                        if (!mapVacaciones[dateStr]) mapVacaciones[dateStr] = [];
+                        let color = reg.estado === 'Solicitado' ? '#64748b' : getColorForName(reg.nombre);
+                        mapVacaciones[dateStr].push({ nombre: reg.nombre, color: color });
+                    }
+                    current.setDate(current.getDate() + 1);
+                }
+            });
+
+            for (let day = 1; day <= totalDays; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                let dateStr = `${year}-${(month+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+                let html = `<div class="calendar-date-number">${day}</div>`;
+                if (mapVacaciones[dateStr]) {
+                    mapVacaciones[dateStr].forEach(item => {
+                        let corto = item.nombre.length > 14 ? item.nombre.substring(0, 12) + '...' : item.nombre;
+                        html += `<span class="vacation-tag" style="background-color: ${item.color};" title="${item.nombre}">${corto}</span>`;
+                    });
+                }
+                cell.innerHTML = html;
+                grid.appendChild(cell);
+            }
+        }
+
+        // CRUD Personal y Respaldo / Restauración Excel
+        function abrirModalPersonal() { renderTablaPersonal(); new bootstrap.Modal(document.getElementById('modalPersonal')).show(); }
+        function renderTablaPersonal() {
+            const tbody = document.getElementById('tablaPersonalBody');
+            tbody.innerHTML = '';
+            catalogoEmpleados.forEach((emp, i) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${emp.mac}</td>
+                        <td class="fw-bold">${emp.nombre}</td>
+                        <td>${emp.modulo}</td>
+                        <td>${emp.puesto}</td>
+                        <td>${emp.correo}</td>
+                        <td>${emp.telefono}</td>
+                        <td><code>${emp.password}</code></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="editarPersonal(${i})"><i class="fa-solid fa-pen small"></i></button> 
+                            <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="eliminarPersonal(${i})"><i class="fa-solid fa-trash small"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+        function mostrarFormularioNuevoPersonal() {
+            document.getElementById('tituloFormEmp').textContent = "Nuevo Personal";
+            document.getElementById('empEditIndex').value = "-1";
+            ['empNombreInput','empMacInput','empModuloInput','empPuestoInput','empCorreoInput','empTelefonoInput','empPasswordInput'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('cardFormPersonal').classList.remove('d-none');
+        }
+        function editarPersonal(i) {
+            const e = catalogoEmpleados[i];
+            document.getElementById('tituloFormEmp').textContent = "Editar Personal";
+            document.getElementById('empEditIndex').value = i;
+            document.getElementById('empNombreInput').value = e.nombre;
+            document.getElementById('empMacInput').value = e.mac;
+            document.getElementById('empModuloInput').value = e.modulo;
+            document.getElementById('empPuestoInput').value = e.puesto;
+            document.getElementById('empCorreoInput').value = e.correo;
+            document.getElementById('empTelefonoInput').value = e.telefono;
+            document.getElementById('empPasswordInput').value = e.password;
+            document.getElementById('cardFormPersonal').classList.remove('d-none');
+        }
+        function guardarPersonalDirectorio() {
+            const idx = parseInt(document.getElementById('empEditIndex').value);
+            const nombre = document.getElementById('empNombreInput').value.toUpperCase();
+            const mac = document.getElementById('empMacInput').value;
+            const modulo = document.getElementById('empModuloInput').value;
+            const puesto = document.getElementById('empPuestoInput').value;
+            const correo = document.getElementById('empCorreoInput').value;
+            const telefono = document.getElementById('empTelefonoInput').value;
+            const password = document.getElementById('empPasswordInput').value;
+
+            if (!nombre || !mac || !modulo || !puesto || !correo || !telefono || !password) { alert('Complete todos los campos'); return; }
+            if (idx === -1) catalogoEmpleados.push({ nombre, mac, modulo, puesto, correo, telefono, password });
+            else catalogoEmpleados[idx] = { nombre, mac, modulo, puesto, correo, telefono, password };
+            document.getElementById('cardFormPersonal').classList.add('d-none');
+            renderTablaPersonal(); poblarSelectLogin();
+        }
+        function eliminarPersonal(i) { if (confirm('¿Eliminar?')) { catalogoEmpleados.splice(i,1); renderTablaPersonal(); poblarSelectLogin(); } }
+
+        function descargarBaseDatosPersonal() {
+            let csv = "\uFEFFMAC,NOMBRE,MODULO,PUESTO,CORREO,TELEFONO,PASSWORD\n";
+            catalogoEmpleados.forEach(e => csv += `"${e.mac}","${e.nombre}","${e.modulo}","${e.puesto}","${e.correo}","${e.telefono}","${e.password}"\n`);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            a.download = 'BaseDatos_Personal.csv';
+            a.click();
+        }
+
+        function importarBaseDatosPersonal(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let lines = e.target.result.split('\n');
+                let nuevos = [];
+                for (let i = 1; i < lines.length; i++) {
+                    let cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+                    if (cols.length >= 7 && cols[1]) {
+                        nuevos.push({ mac: cols[0], nombre: cols[1], modulo: cols[2], puesto: cols[3], correo: cols[4], telefono: cols[5], password: cols[6] });
+                    }
+                }
+                if (nuevos.length > 0) {
+                    catalogoEmpleados = nuevos;
+                    renderTablaPersonal();
+                    poblarSelectLogin();
+                    alert('Base de datos de personal importada con éxito.');
+                } else {
+                    alert('Error al leer el archivo.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportarExcel() {
+            let csv = "\uFEFFMAC,NOMBRE,MODULO,AÑO,PERIODO,DEL DIA,AL DIA,DIAS,ESTADO\n";
+            registros.forEach(r => csv += `"${r.mac}","${r.nombre}","${r.area}","${r.anio}","${r.periodo}","${formatearFechaDDMMYYYY(r.delDia)}","${formatearFechaDDMMYYYY(r.alDia)}",${calcularDiasHabiles(r.delDia,r.alDia)},"${r.estado}"\n`);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            a.download = 'Reporte_Vacaciones.csv';
+            a.click();
+        }
+    </script>
+</body>
+</html>
