@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendarización de Vacaciones - Carrivers Desing</title>
+    <title>Calendarización y Requisitos - INE Carrivers Desing</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -11,8 +11,9 @@
     <style>
         :root {
             --bs-body-font-size: 0.85rem;
-            --primary-color: #0f172a;
-            --accent-color: #2563eb;
+            --ine-primary: #d91438; /* Color institucional tipo INE / guinda-magenta */
+            --ine-dark: #1e293b;
+            --ine-light: #fdf2f4;
         }
         body {
             background-color: #f8fafc;
@@ -21,9 +22,10 @@
             font-size: 0.85rem;
         }
         .header-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, var(--ine-dark) 0%, #0f172a 100%);
             color: white;
             padding: 1.25rem 1rem;
+            border-bottom: 4px solid var(--ine-primary);
             border-radius: 0 0 0.75rem 0.75rem;
             margin-bottom: 1.25rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
@@ -34,7 +36,7 @@
         }
         .header-banner p {
             font-size: 0.75rem;
-            opacity: 0.8;
+            opacity: 0.85;
         }
         .card {
             border: 1px solid #e2e8f0;
@@ -46,10 +48,16 @@
         .card-title {
             font-size: 0.9rem;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--ine-dark);
         }
         .form-label, .form-control, .form-select, .btn {
             font-size: 0.82rem !important;
+        }
+        .nav-pills .nav-link.active {
+            background-color: var(--ine-primary) !important;
+        }
+        .nav-pills .nav-link {
+            color: var(--ine-dark);
         }
         .table-responsive {
             max-height: 480px;
@@ -67,7 +75,7 @@
             padding: 0.45rem !important;
         }
         table th {
-            background-color: #1e293b !important;
+            background-color: var(--ine-dark) !important;
             color: white !important;
             position: sticky;
             top: 0;
@@ -80,7 +88,7 @@
             letter-spacing: 0.025em;
         }
         table th:hover {
-            background-color: #0f172a !important;
+            background-color: var(--ine-primary) !important;
         }
         .resizer {
             position: absolute;
@@ -165,7 +173,16 @@
             gap: 4px;
         }
         .badge-festivo.inhabile { background-color: #dc3545; }
-        .badge-festivo.obligatorio { background-color: #2563eb; }
+        .badge-festivo.obligatorio { background-color: var(--ine-primary); }
+
+        /* Estilo de Tarjetas de Requisitos tipo INE */
+        .req-card {
+            border-left: 4px solid var(--ine-primary);
+            transition: transform 0.2s;
+        }
+        .req-card:hover {
+            transform: translateY(-2px);
+        }
 
         @media print {
             body * { visibility: hidden; }
@@ -177,8 +194,8 @@
 <body>
 
     <div class="header-banner text-center">
-        <h1><i class="fa-solid fa-calendar-days me-2"></i> Calendarización de Vacaciones</h1>
-        <p class="mb-0">03 Junta Distrital Ejecutiva en Coahuila - Carrivers Desing</p>
+        <h1><i class="fa-solid fa-id-card me-2"></i> Calendarización y Gestión - INE Coahuila</h1>
+        <p class="mb-0">03 Junta Distrital Ejecutiva - Módulos de Atención Ciudadana | Carrivers Desing</p>
     </div>
 
     <!-- PANTALLA DE LOGIN DE EMPLEADO -->
@@ -187,7 +204,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
-                        <h4 class="text-dark text-center mb-3"><i class="fa-solid fa-user-lock me-2 text-primary"></i> Iniciar Sesión</h4>
+                        <h4 class="text-dark text-center mb-3" style="color: var(--ine-primary) !important;"><i class="fa-solid fa-user-lock me-2"></i> Iniciar Sesión</h4>
                         <p class="text-muted small text-center mb-3">Seleccione su nombre y escriba su contraseña (Por defecto: su número de módulo o 'oficina' para personal de oficina).</p>
                         
                         <div class="mb-3">
@@ -201,7 +218,7 @@
                             <input type="password" class="form-control enter-next" id="loginPasswordInput" placeholder="Contraseña">
                         </div>
                         <div class="d-grid mb-3">
-                            <button class="btn btn-primary btn-sm" id="btnLoginAcceder" onclick="validarLoginEmpleado()">Ingresar</button>
+                            <button class="btn btn-sm text-white fw-bold" style="background-color: var(--ine-primary);" id="btnLoginAcceder" onclick="validarLoginEmpleado()">Ingresar</button>
                         </div>
                         <div class="text-center">
                             <a href="#" class="small text-secondary text-decoration-none" onclick="irAlMenuAdminDirecto()"><i class="fa-solid fa-lock me-1"></i> Panel Administrador</a>
@@ -218,10 +235,13 @@
         <!-- Pestañas de Navegación -->
         <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active fw-bold" id="pills-solicitud-tab" data-bs-toggle="pill" data-bs-target="#pills-solicitud" type="button"><i class="fa-solid fa-file-pen me-1"></i> Solicitar y Mis Solicitudes</button>
+                <button class="nav-link active fw-bold" id="pills-solicitud-tab" data-bs-toggle="pill" data-bs-target="#pills-solicitud" type="button"><i class="fa-solid fa-file-pen me-1"></i> Solicitar Vacaciones</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold" id="pills-tabla-tab" data-bs-toggle="pill" data-bs-target="#pills-tabla" type="button"><i class="fa-solid fa-table me-1"></i> Registro y Calendario</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="pills-requisitos-tab" data-bs-toggle="pill" data-bs-target="#pills-requisitos" type="button"><i class="fa-solid fa-folder-open me-1"></i> Guía de Trámite INE</button>
             </li>
             <li class="nav-item" role="presentation" id="tabAdminNavItem" style="display: none;">
                 <button class="nav-link fw-bold text-danger" id="pills-admin-tab" data-bs-toggle="pill" data-bs-target="#pills-admin" type="button"><i class="fa-solid fa-lock me-1"></i> Menú Administrador</button>
@@ -238,7 +258,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                                     <div class="d-flex align-items-center gap-2">
-                                        <h5 class="card-title mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i> Estado Actual de Solicitudes (<span id="lblModuloUsuarioContexto"></span>)</h5>
+                                        <h5 class="card-title mb-0"><i class="fa-solid fa-list-check me-2" style="color: var(--ine-primary);"></i> Estado Actual de Solicitudes (<span id="lblModuloUsuarioContexto"></span>)</h5>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <!-- Botón Buzón con Globo de Notificación -->
@@ -279,7 +299,7 @@
                     <div class="col-lg-8">
                         <div class="card border-0">
                             <div class="card-body p-4">
-                                <h5 class="card-title text-primary mb-2"><i class="fa-solid fa-user-clock me-2"></i> Formulario de Solicitud de Vacaciones</h5>
+                                <h5 class="card-title mb-2" style="color: var(--ine-primary);"><i class="fa-solid fa-user-clock me-2"></i> Formulario de Solicitud de Vacaciones</h5>
                                 <p class="text-muted small mb-3" id="lblPeriodoValidoInfo">Periodo autorizado por administración: <b>Sin definir</b></p>
                                 
                                 <form id="formSolicitudEmpleado">
@@ -304,11 +324,11 @@
                                     <div id="containerRangosFechas"></div>
 
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarRango" onclick="agregarFilaRango()">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" id="btnAgregarRango" onclick="agregarFilaRango()">
                                             <i class="fa-solid fa-plus me-1"></i> Agregar periodo descontinuo
                                         </button>
                                         <div class="fw-bold">
-                                            Total Días: <span id="totalDiasSolicitados" class="text-primary">0</span> / <span id="lblTotalDiasMax">10</span>
+                                            Total Días: <span id="totalDiasSolicitados" style="color: var(--ine-primary);">0</span> / <span id="lblTotalDiasMax">10</span>
                                         </div>
                                     </div>
 
@@ -328,7 +348,7 @@
                 </div>
             </div>
 
-            <!-- VISTA 2 -->
+            <!-- VISTA 2: REGISTRO Y CALENDARIO -->
             <div class="tab-pane fade" id="pills-tabla" role="tabpanel">
                 <div class="row mb-3">
                     <div class="col-md-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -350,7 +370,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="card-title mb-0"><i class="fa-solid fa-table me-2 text-primary"></i> Registro General de Solicitudes</h5>
+                            <h5 class="card-title mb-0"><i class="fa-solid fa-table me-2" style="color: var(--ine-primary);"></i> Registro General de Solicitudes</h5>
                             <span class="badge bg-secondary" id="lblFiltroVistaActiva">Vista filtrada por su módulo</span>
                         </div>
                         <div class="table-responsive">
@@ -378,7 +398,7 @@
                 <div class="card mt-3">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                            <h5 class="card-title mb-0"><i class="fa-solid fa-calendar-week me-2 text-primary"></i> Calendario Visual</h5>
+                            <h5 class="card-title mb-0"><i class="fa-solid fa-calendar-week me-2" style="color: var(--ine-primary);"></i> Calendario Visual</h5>
                             <div class="d-flex align-items-center gap-2">
                                 <label for="monthSelect" class="form-label mb-0 small fw-bold">Mes:</label>
                                 <select id="monthSelect" class="form-select form-select-sm" style="width: 140px;" onchange="renderCalendar()">
@@ -405,7 +425,52 @@
                 </div>
             </div>
 
-            <!-- VISTA 3: ADMINISTRADOR -->
+            <!-- VISTA 3: GUÍA DE TRÁMITE / REQUISITOS ESTILO INE -->
+            <div class="tab-pane fade" id="pills-requisitos" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-lg-9">
+                        <div class="card border-0 p-3">
+                            <div class="card-body">
+                                <h4 class="mb-3" style="color: var(--ine-primary);"><i class="fa-solid fa-id-card me-2"></i> Reúne tus 3 Documentos (Guía Oficial INE)</h4>
+                                <p class="text-muted small">Para cualquier trámite en el Módulo de Atención Ciudadana (MAC), debes presentar documentos originales sin enmendaduras ni tachaduras.</p>
+                                
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-4">
+                                        <div class="card req-card h-100 p-2 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-flag me-1 text-danger"></i> 1. Nacionalidad</h6>
+                                                <p class="small text-muted mb-0">Acta de nacimiento original o documento que acredite la nacionalidad mexicana (o carta de naturalización).</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card req-card h-100 p-2 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-camera-retro me-1 text-danger"></i> 2. Identificación con Foto</h6>
+                                                <p class="small text-muted mb-0">Documento original vigente con fotografía (Pasaporte, Cédula Profesional, Cartilla Militar, Licencia de Conducir).</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card req-card h-100 p-2 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold text-dark"><i class="fa-solid fa-house-chimney me-1 text-danger"></i> 3. Comprobante de Domicilio</h6>
+                                                <p class="small text-muted mb-0">Recibo original con vigencia no mayor a 3 meses (Luz, agua, predial, teléfono, estado de cuenta o escrituras).</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning mt-4 py-2 small" role="alert">
+                                    <i class="fa-solid fa-circle-info me-1"></i> <b>Nota importante:</b> Si no cuentas con alguna identificación o comprobante, recuerda que puedes presentarte con dos testigos debidamente registrados en el municipio.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 4: ADMINISTRADOR -->
             <div class="tab-pane fade" id="pills-admin" role="tabpanel">
                 <div class="row justify-content-center">
                     <div class="col-md-5" id="adminLoginBox">
@@ -428,7 +493,7 @@
                         <div class="card border-0">
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                                    <h4 class="text-primary mb-0"><i class="fa-solid fa-gears me-2"></i> Configuración General</h4>
+                                    <h4 class="mb-0" style="color: var(--ine-primary);"><i class="fa-solid fa-gears me-2"></i> Configuración General</h4>
                                     <div class="d-flex gap-2">
                                         <button class="btn btn-outline-secondary btn-sm" onclick="abrirModalCambiarPasswordAdmin()"><i class="fa-solid fa-key me-1"></i> Contraseña Admin</button>
                                         <button class="btn btn-dark position-relative btn-sm" onclick="abrirBuzonInboxAdmin()">
@@ -451,12 +516,12 @@
                                 <!-- Panel de Gráficos Estadísticos (Solo Administrador) -->
                                 <div class="card bg-light border mb-4">
                                     <div class="card-body">
-                                        <h5 class="card-title text-primary mb-3"><i class="fa-solid fa-chart-pie me-2"></i> Panel de Estadísticas y Resumen Operativo</h5>
+                                        <h5 class="card-title mb-3" style="color: var(--ine-primary);"><i class="fa-solid fa-chart-pie me-2"></i> Panel de Estadísticas y Resumen Operativo</h5>
                                         <div class="row text-center g-3">
                                             <div class="col-md-3">
                                                 <div class="p-3 bg-white rounded border shadow-sm">
                                                     <h6 class="text-muted small mb-1">Total Solicitudes</h6>
-                                                    <h3 class="text-primary mb-0" id="statTotalSol">0</h3>
+                                                    <h3 class="mb-0" style="color: var(--ine-primary);" id="statTotalSol">0</h3>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -548,7 +613,7 @@
     <div class="modal fade" id="modalHistorialPersonal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white py-2">
+                <div class="modal-header text-white py-2" style="background-color: var(--ine-primary);">
                     <h6 class="modal-title"><i class="fa-solid fa-clock-rotate-left me-2"></i> Historial de Solicitudes</h6>
                     <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
                 </div>
@@ -683,7 +748,7 @@
     <div class="modal fade" id="modalCartaOficial" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white py-2">
+                <div class="modal-header text-white py-2" style="background-color: var(--ine-primary);">
                     <h6 class="modal-title"><i class="fa-solid fa-file-pdf me-2"></i> Carta Oficial de Vacaciones</h6>
                     <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
                 </div>
@@ -787,7 +852,7 @@
         let buzonAdmin = [];
         let ultimoTextoNotificacionWhatsApp = "";
 
-        const colorPalette = ["#0f172a", "#2563eb", "#059669", "#d97706", "#7c3aed", "#db2777", "#0891b2"];
+        const colorPalette = ["#d91438", "#2563eb", "#059669", "#d97706", "#7c3aed", "#db2777", "#0891b2"];
 
         function getColorForName(nombre) {
             let hash = 0;
@@ -967,7 +1032,7 @@
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-5"><input type="date" class="form-control form-control-sm" value="${r.del}" readonly></div>
                             <div class="col-5"><input type="date" class="form-control form-control-sm" value="${r.al}" readonly></div>
-                            <div class="col-2"><span class="badge bg-primary w-100">Obligatorio</span></div>
+                            <div class="col-2"><span class="badge w-100" style="background-color: var(--ine-primary);">Obligatorio</span></div>
                         </div>`;
                 }
             });
@@ -1376,7 +1441,7 @@
                     if (cur.getDay() !== 0 && cur.getDay() !== 6 && cur.getFullYear() === year && cur.getMonth() === month) {
                         let ds = cur.toISOString().split('T')[0];
                         if (!mapVacaciones[ds]) mapVacaciones[ds] = [];
-                        mapVacaciones[ds].push({ nombre: r.desc, color: r.tipo === 'Bloqueado' ? '#dc3545' : '#2563eb' });
+                        mapVacaciones[ds].push({ nombre: r.desc, color: r.tipo === 'Bloqueado' ? '#dc3545' : 'var(--ine-primary)' });
                     }
                     cur.setDate(cur.getDate() + 1);
                 }
