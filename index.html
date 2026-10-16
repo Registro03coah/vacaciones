@@ -892,7 +892,9 @@
 
         function borrarSistemaCompletoDeCero() {
             if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal y restricciones para empezar completamente desde cero.")) {
-                // Forzar limpieza completa incluyendo caché local de Firebase
+                // Desvincular eventos para evitar que la caché local repueble el servidor
+                db.ref('sistema_vacaciones').off();
+                
                 db.ref('sistema_vacaciones').remove().then(() => {
                     catalogoEmpleados = [];
                     registros = [];
