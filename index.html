@@ -175,7 +175,6 @@
         .badge-festivo.inhabile { background-color: #dc3545; }
         .badge-festivo.obligatorio { background-color: var(--ine-primary); }
 
-        /* Estilo de Tarjetas de Requisitos tipo INE */
         .req-card {
             border-left: 4px solid var(--ine-primary);
             transition: transform 0.2s;
@@ -495,6 +494,10 @@
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                                     <h4 class="mb-0" style="color: var(--ine-primary);"><i class="fa-solid fa-gears me-2"></i> Configuración General</h4>
                                     <div class="d-flex gap-2">
+                                        <!-- Botón Borrado con Calavera -->
+                                        <button class="btn btn-dark btn-sm fw-bold" onclick="borrarSistemaCompletoDeCero()">
+                                            <i class="fa-solid fa-skull me-1"></i> Borrado
+                                        </button>
                                         <button class="btn btn-outline-secondary btn-sm" onclick="abrirModalCambiarPasswordAdmin()"><i class="fa-solid fa-key me-1"></i> Contraseña Admin</button>
                                         <button class="btn btn-dark position-relative btn-sm" onclick="abrirBuzonInboxAdmin()">
                                             <i class="fa-solid fa-envelope me-1"></i> Buzón Admin
@@ -919,6 +922,17 @@
             });
         }
 
+        function borrarSistemaCompletoDeCero() {
+            if (confirm("⚠️ ¿Estás seguro de realizar el BORRADO TOTAL?\nEsta acción eliminará todas las bases de datos, solicitudes, personal personalizado y restricciones de Firebase para empezar completamente desde cero.")) {
+                db.ref('sistema_vacaciones').remove().then(() => {
+                    alert("Sistema borrado y reiniciado desde cero.");
+                    window.location.reload();
+                }).catch(err => {
+                    alert("Error al borrar: " + err.message);
+                });
+            }
+        }
+
         function poblarSelectLogin() {
             const select = document.getElementById('loginNombreSelect');
             select.innerHTML = '<option value="">-- Seleccione su nombre --</option>';
@@ -943,6 +957,10 @@
             document.getElementById('loginEmpleadoContainer').classList.add('d-none');
             document.getElementById('mainAppContainer').classList.remove('d-none');
             document.getElementById('tabAdminNavItem').style.display = 'none';
+
+            // Activar explícitamente la pestaña de solicitud para evitar errores de enfoque
+            const solicitudTab = document.getElementById('pills-solicitud-tab');
+            new bootstrap.Tab(solicitudTab).show();
 
             document.getElementById('lblUsuarioLogueado').textContent = emp.nombre;
             document.getElementById('lblModuloUsuarioContexto').textContent = `Módulo / Área: ${emp.modulo}`;
